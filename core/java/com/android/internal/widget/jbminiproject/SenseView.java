@@ -38,13 +38,8 @@ import android.view.accessibility.AccessibilityManager;
 import com.android.internal.R;
 import com.android.internal.widget.DrawableHolder;
 
-/**
- * A special widget containing a center and outer ring. Moving the center ring to the outer ring
- * causes an event that can be caught by implementing OnTriggerListener.
- */
 public class SenseView extends View implements ValueAnimator.AnimatorUpdateListener {
     private static final String TAG = "SenseView";
-    private static final boolean DBG = false;
 
     // Lock state machine states
     private static final int STATE_RESET_LOCK = 0;
@@ -64,16 +59,7 @@ public class SenseView extends View implements ValueAnimator.AnimatorUpdateListe
     private static final long SHORT_DELAY = 100;
     private static final long RESET_TIMEOUT = 500;
 
-    /**
-     * The scale by which to multiply the unlock handle width to compute the radius
-     * in which it can be grabbed when accessibility is disabled.
-     */
     private static final float GRAB_HANDLE_RADIUS_SCALE_ACCESSIBILITY_DISABLED = 0.5f;
-
-    /**
-     * The scale by which to multiply the unlock handle width to compute the radius
-     * in which it can be grabbed when accessibility is enabled (more generous).
-     */
     private static final float GRAB_HANDLE_RADIUS_SCALE_ACCESSIBILITY_ENABLED = 1.0f;
 
     private Vibrator mVibrator;
@@ -116,13 +102,11 @@ public class SenseView extends View implements ValueAnimator.AnimatorUpdateListe
 
     @Override
     protected int getSuggestedMinimumWidth() {
-        // View should be large enough to contain the unlock ring + halo
         return mUnlockRing.getWidth() + mUnlockHalo.getWidth();
     }
 
     @Override
     protected int getSuggestedMinimumHeight() {
-        // View should be large enough to contain the unlock ring + halo
         return mUnlockRing.getHeight() + mUnlockHalo.getHeight();
     }
 
@@ -208,7 +192,6 @@ public class SenseView extends View implements ValueAnimator.AnimatorUpdateListe
 
         switch (mLockState) {
             case STATE_RESET_LOCK:
-                if (DBG) Log.v(TAG, "State RESET_LOCK");
                 mUnlockRing.removeAnimationFor("x");
                 mUnlockRing.removeAnimationFor("y");
                 mUnlockRing.removeAnimationFor("scaleX");
@@ -259,17 +242,13 @@ public class SenseView extends View implements ValueAnimator.AnimatorUpdateListe
                 break;
 
             case STATE_READY:
-                if (DBG) Log.v(TAG, "State READY");
                 break;
 
             case STATE_START_ATTEMPT:
-                if (DBG) Log.v(TAG, "State START_ATTEMPT");
-
                 mLockState = STATE_ATTEMPTING;
                 break;
 
             case STATE_ATTEMPTING:
-                if (DBG) Log.v(TAG, "State ATTEMPTING (fingerDown = " + fingerDown + ")");
                 if (mouseY < mLockCenterY + mUnlockpos) {
                     if (fingerDown) {
                         mUnlockHalo.addAnimTo(0, 0, "x", mouseX, true);
@@ -278,7 +257,6 @@ public class SenseView extends View implements ValueAnimator.AnimatorUpdateListe
                         mUnlockHalo.addAnimTo(0, 0, "scaleY", 1.0f, true);
                         mUnlockHalo.addAnimTo(0, 0, "alpha", 1.0f, true);
                     }  else {
-                        if (DBG) Log.v(TAG, "up detected, moving to STATE_UNLOCK_ATTEMPT");
                         mLockState = STATE_UNLOCK_ATTEMPT;
                     }
                 } else {
@@ -291,7 +269,6 @@ public class SenseView extends View implements ValueAnimator.AnimatorUpdateListe
                 break;
 
             case STATE_UNLOCK_ATTEMPT:
-                if (DBG) Log.v(TAG, "State UNLOCK_ATTEMPT");
                 if (mouseY < mLockCenterY + mUnlockpos) {
                     mUnlockHalo.addAnimTo(FINAL_DELAY, 0, "x", mLockCenterX, true);
                     mUnlockHalo.addAnimTo(FINAL_DELAY, 0, "y", mLockCenterY, true);
@@ -311,11 +288,9 @@ public class SenseView extends View implements ValueAnimator.AnimatorUpdateListe
                 break;
 
             case STATE_UNLOCK_SUCCESS:
-                if (DBG) Log.v(TAG, "State UNLOCK_SUCCESS");
                 break;
 
             default:
-                if (DBG) Log.v(TAG, "Unknown state " + mLockState);
                 break;
         }
         mUnlockDefault.startAnimations(this);
@@ -340,10 +315,7 @@ public class SenseView extends View implements ValueAnimator.AnimatorUpdateListe
 
     private final Runnable mLockTimerActions = new Runnable() {
         public void run() {
-            if (DBG) Log.v(TAG, "LockTimerActions");
-            // reset lock after inactivity
             if (mLockState == STATE_ATTEMPTING) {
-                if (DBG) Log.v(TAG, "Timer resets to STATE_RESET_LOCK");
                 mLockState = STATE_RESET_LOCK;
             }
             invalidate();
@@ -391,7 +363,6 @@ public class SenseView extends View implements ValueAnimator.AnimatorUpdateListe
                 break;
 
             case MotionEvent.ACTION_UP:
-                if (DBG) Log.v(TAG, "ACTION_UP");
                 mFingerDown = false;
                 postDelayed(mLockTimerActions, RESET_TIMEOUT);
                 setGrabbedState(OnTriggerListener.NO_HANDLE);
@@ -409,11 +380,6 @@ public class SenseView extends View implements ValueAnimator.AnimatorUpdateListe
         return handled ? true : super.onTouchEvent(event);
     }
 
-    /**
-     * Tries to transition to start attempt state.
-     *
-     * @param event A motion event.
-     */
     private void tryTransitionToStartAttemptState(MotionEvent event) {
         final float dx = event.getX() - mUnlockHalo.getX();
         final float dy = event.getY() - mUnlockHalo.getY();
@@ -429,10 +395,6 @@ public class SenseView extends View implements ValueAnimator.AnimatorUpdateListe
         }
     }
 
-    /**
-     * @return The radius in which the handle is grabbed scaled based on
-     *     whether accessibility is enabled.
-     */
     private float getScaledGrabHandleRadius() {
         if (AccessibilityManager.getInstance(mContext).isEnabled()) {
             return GRAB_HANDLE_RADIUS_SCALE_ACCESSIBILITY_ENABLED * mUnlockHalo.getWidth();
@@ -441,18 +403,12 @@ public class SenseView extends View implements ValueAnimator.AnimatorUpdateListe
         }
     }
 
-    /**
-     * Announces the unlock handle if accessibility is enabled.
-     */
     private void announceUnlockHandle() {
         setContentDescription(mContext.getString(R.string.description_target_unlock_tablet));
         sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED);
         setContentDescription(null);
     }
 
-    /**
-     * Triggers haptic feedback.
-     */
     private synchronized void vibrate(long duration) {
         if (mVibrator == null) {
             mVibrator = (android.os.Vibrator)
@@ -461,19 +417,10 @@ public class SenseView extends View implements ValueAnimator.AnimatorUpdateListe
         mVibrator.vibrate(duration);
     }
 
-    /**
-     * Registers a callback to be invoked when the user triggers an event.
-     *
-     * @param listener the OnDialTriggerListener to attach to this view
-     */
     public void setOnTriggerListener(OnTriggerListener listener) {
         mOnTriggerListener = listener;
     }
 
-    /**
-     * Dispatches a trigger event to listener. Ignored if a listener is not set.
-     * @param whichHandle the handle that triggered the event.
-     */
     private void dispatchTriggerEvent(int whichHandle) {
         vibrate(VIBRATE_LONG);
         if (mOnTriggerListener != null) {
@@ -481,10 +428,6 @@ public class SenseView extends View implements ValueAnimator.AnimatorUpdateListe
         }
     }
 
-    /**
-     * Sets the current grabbed state, and dispatches a grabbed state change
-     * event to our listener.
-     */
     private void setGrabbedState(int newState) {
         if (newState != mGrabbedState) {
             mGrabbedState = newState;
@@ -495,28 +438,11 @@ public class SenseView extends View implements ValueAnimator.AnimatorUpdateListe
     }
 
     public interface OnTriggerListener {
-        /**
-         * Sent when the user releases the handle.
-         */
         public static final int NO_HANDLE = 0;
-
-        /**
-         * Sent when the user grabs the center handle
-         */
         public static final int CENTER_HANDLE = 10;
 
-        /**
-         * Called when the user drags the center ring beyond a threshold.
-         */
         void onTrigger(View v, int whichHandle);
 
-        /**
-         * Called when the "grabbed state" changes (i.e. when the user either grabs or releases
-         * one of the handles.)
-         *
-         * @param v the view that was triggered
-         * @param grabbedState the new state: {@link #NO_HANDLE}, {@link #CENTER_HANDLE},
-         */
         void onGrabbedStateChange(View v, int grabbedState);
     }
 
@@ -525,7 +451,6 @@ public class SenseView extends View implements ValueAnimator.AnimatorUpdateListe
     }
 
     public void reset() {
-        if (DBG) Log.v(TAG, "reset() : resets state to STATE_RESET_LOCK");
         mLockState = STATE_RESET_LOCK;
         invalidate();
     }
