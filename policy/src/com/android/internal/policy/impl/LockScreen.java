@@ -66,6 +66,7 @@ import com.android.internal.widget.RotarySelector;
 import com.android.internal.widget.SlidingTab;
 import com.android.internal.widget.WaveView;
 import com.android.internal.widget.jbminiproject.SenseView;
+import com.android.internal.widget.jbminiproject.SamsungView;
 import com.android.internal.widget.multiwaveview.GlowPadView;
 import com.android.internal.widget.multiwaveview.TargetDrawable;
 
@@ -289,6 +290,43 @@ class LockScreen extends RelativeLayout implements KeyguardScreen {
             mRotarySelector.reset();
         }
 
+        public void ping() {
+        }
+    }
+
+    class SamsungViewMethods implements SamsungView.OnTriggerListener, UnlockWidgetCommonMethods {
+
+        private final SamsungView mSamsungView;
+
+        SamsungViewMethods(SamsungView samsungView) {
+            mSamsungView = samsungView;
+        }
+        /** {@inheritDoc} */
+        public void onTrigger(View v, int whichHandle) {
+            if (whichHandle == SamsungView.OnTriggerListener.CENTER_HANDLE) {
+                requestUnlockScreen();
+            }
+        }
+
+        /** {@inheritDoc} */
+        public void onGrabbedStateChange(View v, int grabbedState) {
+            // Don't poke the wake lock when returning to a state where the handle is
+            // not grabbed since that can happen when the system (instead of the user)
+            // cancels the grab.
+            if (grabbedState == SamsungView.OnTriggerListener.CENTER_HANDLE) {
+                mCallback.pokeWakelock(STAY_ON_WHILE_GRABBED_TIMEOUT);
+            }
+        }
+
+        public void updateResources() {
+        }
+
+        public View getView() {
+            return mSamsungView;
+        }
+        public void reset(boolean animate) {
+            mSamsungView.reset();
+        }
         public void ping() {
         }
     }
@@ -824,6 +862,11 @@ class LockScreen extends RelativeLayout implements KeyguardScreen {
             RotarySelectorMethods rotarySelectorMethods = new RotarySelectorMethods(rotarySelectorView);
             rotarySelectorView.setOnDialTriggerListener(rotarySelectorMethods);
             return rotarySelectorMethods;
+        } else if (unlockWidget instanceof SamsungView) {
+            SamsungView samsungView = (SamsungView) unlockWidget;
+            SamsungViewMethods samsungViewMethods = new SamsungViewMethods(samsungView);
+            samsungView.setOnTriggerListener(samsungViewMethods);
+            return samsungViewMethods;
         } else if (unlockWidget instanceof SenseView) {
             SenseView senseView = (SenseView) unlockWidget;
             SenseViewMethods senseViewMethods = new SenseViewMethods(senseView);
