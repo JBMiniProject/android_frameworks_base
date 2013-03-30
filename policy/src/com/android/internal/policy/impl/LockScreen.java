@@ -65,8 +65,9 @@ import com.android.internal.widget.LockPatternUtils;
 import com.android.internal.widget.RotarySelector;
 import com.android.internal.widget.SlidingTab;
 import com.android.internal.widget.WaveView;
-import com.android.internal.widget.jbminiproject.SenseView;
+import com.android.internal.widget.jbminiproject.AcerView;
 import com.android.internal.widget.jbminiproject.SamsungView;
+import com.android.internal.widget.jbminiproject.SenseView;
 import com.android.internal.widget.multiwaveview.GlowPadView;
 import com.android.internal.widget.multiwaveview.TargetDrawable;
 
@@ -123,6 +124,7 @@ class LockScreen extends RelativeLayout implements KeyguardScreen {
     private boolean mUseXperiaS = (Settings.System.getInt(mContext.getContentResolver(), Settings.System.LOCKSCREEN_STYLE, 0) == 3);
     private boolean mUseSGS = (Settings.System.getInt(mContext.getContentResolver(), Settings.System.LOCKSCREEN_STYLE, 0) == 4);
     private boolean mUseSense = (Settings.System.getInt(mContext.getContentResolver(), Settings.System.LOCKSCREEN_STYLE, 0) == 5);
+    private boolean mUseAcer = (Settings.System.getInt(mContext.getContentResolver(), Settings.System.LOCKSCREEN_STYLE, 0) == 6);
 
     private boolean mHideArrows = (Settings.System.getInt(mContext.getContentResolver(), Settings.System.LOCKSCREEN_HIDE_ARROWS, 0) == 1);
     private boolean mHideHint = (Settings.System.getInt(mContext.getContentResolver(), Settings.System.LOCKSCREEN_HIDE_HINT, 0) == 1);
@@ -290,6 +292,43 @@ class LockScreen extends RelativeLayout implements KeyguardScreen {
             mRotarySelector.reset();
         }
 
+        public void ping() {
+        }
+    }
+
+    class AcerViewMethods implements AcerView.OnTriggerListener, UnlockWidgetCommonMethods {
+
+        private final AcerView mAcerView;
+
+        AcerViewMethods(AcerView acerView) {
+            mAcerView = acerView;
+        }
+        /** {@inheritDoc} */
+        public void onTrigger(View v, int whichHandle) {
+            if (whichHandle == AcerView.OnTriggerListener.CENTER_HANDLE) {
+                requestUnlockScreen();
+            }
+        }
+
+        /** {@inheritDoc} */
+        public void onGrabbedStateChange(View v, int grabbedState) {
+            // Don't poke the wake lock when returning to a state where the handle is
+            // not grabbed since that can happen when the system (instead of the user)
+            // cancels the grab.
+            if (grabbedState == AcerView.OnTriggerListener.CENTER_HANDLE) {
+                mCallback.pokeWakelock(STAY_ON_WHILE_GRABBED_TIMEOUT);
+            }
+        }
+
+        public void updateResources() {
+        }
+
+        public View getView() {
+            return mAcerView;
+        }
+        public void reset(boolean animate) {
+            mAcerView.reset();
+        }
         public void ping() {
         }
     }
@@ -762,6 +801,8 @@ class LockScreen extends RelativeLayout implements KeyguardScreen {
                 inflater.inflate(R.layout.keyguard_screen_sgs_unlock, this, true);
             else if (mUseSense)
                 inflater.inflate(R.layout.keyguard_screen_sense_unlock, this, true);
+            else if (mUseAcer)
+                inflater.inflate(R.layout.keyguard_screen_acer_unlock, this, true);
             else
                 inflater.inflate(R.layout.keyguard_screen_tab_unlock, this, true);
         } else {
@@ -775,6 +816,8 @@ class LockScreen extends RelativeLayout implements KeyguardScreen {
                 inflater.inflate(R.layout.keyguard_screen_sgs_unlock_land, this, true);
             else if (mUseSense)
                 inflater.inflate(R.layout.keyguard_screen_sense_unlock_land, this, true);
+            else if (mUseAcer)
+                inflater.inflate(R.layout.keyguard_screen_acer_unlock_land, this, true);
             else
                 inflater.inflate(R.layout.keyguard_screen_tab_unlock_land, this, true);
         }
@@ -862,6 +905,11 @@ class LockScreen extends RelativeLayout implements KeyguardScreen {
             RotarySelectorMethods rotarySelectorMethods = new RotarySelectorMethods(rotarySelectorView);
             rotarySelectorView.setOnDialTriggerListener(rotarySelectorMethods);
             return rotarySelectorMethods;
+        } else if (unlockWidget instanceof AcerView) {
+            AcerView acerView = (AcerView) unlockWidget;
+            AcerViewMethods acerViewMethods = new AcerViewMethods(acerView);
+            acerView.setOnTriggerListener(acerViewMethods);
+            return acerViewMethods;
         } else if (unlockWidget instanceof SamsungView) {
             SamsungView samsungView = (SamsungView) unlockWidget;
             SamsungViewMethods samsungViewMethods = new SamsungViewMethods(samsungView);
