@@ -29,7 +29,7 @@
     android:layout_height="match_parent"
     android:id="@+id/root"
     android:gravity="center_horizontal"
-    android:background="@drawable/xslbg">
+    android:background="#70000000">
 
     <com.android.internal.widget.DigitalClock android:id="@+id/time"
         android:layout_marginTop="@dimen/keyguard_lockscreen_status_line_clockfont_top_margin"
@@ -291,10 +291,11 @@
         <com.android.internal.widget.SlidingTab
             android:id="@+id/unlock_widget"
             android:orientation="horizontal"
+            android:background="@drawable/sliderbg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="21dip"
+            android:layout_marginBottom="40dip"
             android:focusable="true"
             />
 
@@ -349,4 +350,3 @@
         />
 
 </GridLayout>
-
