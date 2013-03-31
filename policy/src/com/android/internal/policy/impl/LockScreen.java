@@ -66,6 +66,7 @@ import com.android.internal.widget.RotarySelector;
 import com.android.internal.widget.SlidingTab;
 import com.android.internal.widget.WaveView;
 import com.android.internal.widget.jbminiproject.AcerView;
+import com.android.internal.widget.jbminiproject.ElugaView;
 import com.android.internal.widget.jbminiproject.SamsungView;
 import com.android.internal.widget.jbminiproject.SenseView;
 import com.android.internal.widget.multiwaveview.GlowPadView;
@@ -125,6 +126,7 @@ class LockScreen extends RelativeLayout implements KeyguardScreen {
     private boolean mUseSGS = (Settings.System.getInt(mContext.getContentResolver(), Settings.System.LOCKSCREEN_STYLE, 0) == 4);
     private boolean mUseSense = (Settings.System.getInt(mContext.getContentResolver(), Settings.System.LOCKSCREEN_STYLE, 0) == 5);
     private boolean mUseAcer = (Settings.System.getInt(mContext.getContentResolver(), Settings.System.LOCKSCREEN_STYLE, 0) == 6);
+    private boolean mUseEluga = (Settings.System.getInt(mContext.getContentResolver(), Settings.System.LOCKSCREEN_STYLE, 0) == 7);
 
     private boolean mHideArrows = (Settings.System.getInt(mContext.getContentResolver(), Settings.System.LOCKSCREEN_HIDE_ARROWS, 0) == 1);
     private boolean mHideHint = (Settings.System.getInt(mContext.getContentResolver(), Settings.System.LOCKSCREEN_HIDE_HINT, 0) == 1);
@@ -328,6 +330,43 @@ class LockScreen extends RelativeLayout implements KeyguardScreen {
         }
         public void reset(boolean animate) {
             mAcerView.reset();
+        }
+        public void ping() {
+        }
+    }
+
+    class ElugaViewMethods implements ElugaView.OnTriggerListener, UnlockWidgetCommonMethods {
+
+        private final ElugaView mElugaView;
+
+        ElugaViewMethods(ElugaView elugaView) {
+            mElugaView = elugaView;
+        }
+        /** {@inheritDoc} */
+        public void onTrigger(View v, int whichHandle) {
+            if (whichHandle == ElugaView.OnTriggerListener.CENTER_HANDLE) {
+                requestUnlockScreen();
+            }
+        }
+
+        /** {@inheritDoc} */
+        public void onGrabbedStateChange(View v, int grabbedState) {
+            // Don't poke the wake lock when returning to a state where the handle is
+            // not grabbed since that can happen when the system (instead of the user)
+            // cancels the grab.
+            if (grabbedState == ElugaView.OnTriggerListener.CENTER_HANDLE) {
+                mCallback.pokeWakelock(STAY_ON_WHILE_GRABBED_TIMEOUT);
+            }
+        }
+
+        public void updateResources() {
+        }
+
+        public View getView() {
+            return mElugaView;
+        }
+        public void reset(boolean animate) {
+            mElugaView.reset();
         }
         public void ping() {
         }
@@ -803,6 +842,8 @@ class LockScreen extends RelativeLayout implements KeyguardScreen {
                 inflater.inflate(R.layout.keyguard_screen_sense_unlock, this, true);
             else if (mUseAcer)
                 inflater.inflate(R.layout.keyguard_screen_acer_unlock, this, true);
+            else if (mUseEluga)
+                inflater.inflate(R.layout.keyguard_screen_eluga_unlock, this, true);
             else
                 inflater.inflate(R.layout.keyguard_screen_tab_unlock, this, true);
         } else {
@@ -920,6 +961,11 @@ class LockScreen extends RelativeLayout implements KeyguardScreen {
             SenseViewMethods senseViewMethods = new SenseViewMethods(senseView);
             senseView.setOnTriggerListener(senseViewMethods);
             return senseViewMethods;
+        } else if (unlockWidget instanceof ElugaView) {
+            ElugaView elugaView = (ElugaView) unlockWidget;
+            ElugaViewMethods elugaViewMethods = new ElugaViewMethods(elugaView);
+            elugaView.setOnTriggerListener(elugaViewMethods);
+            return elugaViewMethods;
         } else if (unlockWidget instanceof WaveView) {
             WaveView waveView = (WaveView) unlockWidget;
             WaveViewMethods waveViewMethods = new WaveViewMethods(waveView);
