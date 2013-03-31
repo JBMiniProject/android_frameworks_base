@@ -30,10 +30,41 @@
     android:id="@+id/root"
     android:gravity="center_horizontal"
     android:background="#70000000">
+  
+		<TextView
+            android:id="@+id/carrier"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="12dip"
+            android:layout_marginRight="12dip"
+            android:gravity="right"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="@dimen/keyguard_lockscreen_status_line_font_size"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textStyle="bold"
+            />
+			
+	    <TextView
+            android:id="@+id/status1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="12dip"
+            android:layout_marginLeft="12dip"
+            android:gravity="left"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="@dimen/keyguard_lockscreen_status_line_font_size"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textStyle="bold"
+            />
 
     <com.android.internal.widget.DigitalClock android:id="@+id/time"
-        android:layout_marginTop="@dimen/keyguard_lockscreen_status_line_clockfont_top_margin"
-        android:layout_marginBottom="12dip"
+        android:layout_marginTop="15dip"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -44,7 +75,7 @@
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:ellipsize="none"
-            android:textSize="@dimen/keyguard_lockscreen_clock_font_size"
+            android:textSize="75dip"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:layout_marginBottom="6dip"
             android:textColor="@color/lockscreen_clock_background"
@@ -55,7 +86,7 @@
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:ellipsize="none"
-            android:textSize="@dimen/keyguard_lockscreen_clock_font_size"
+            android:textSize="75dip"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:layout_marginBottom="6dip"
             android:textColor="@color/lockscreen_clock_foreground"
@@ -93,17 +124,6 @@
             android:drawablePadding="4dip"
             />
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/status1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:singleLine="true"
-        android:ellipsize="marquee"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textSize="@dimen/keyguard_lockscreen_status_line_font_size"
-        android:drawablePadding="4dip"
-        />
 
     <!-- CyanogenMod Weather Panel -->
     <RelativeLayout
@@ -223,7 +243,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="302dip">
+        android:layout_height="250dip">
 
     <!-- CyanogenMod Calendar Panel -->
     <LinearLayout
@@ -291,26 +311,12 @@
         <com.android.internal.widget.SlidingTab
             android:id="@+id/unlock_widget"
             android:orientation="horizontal"
-            android:background="@drawable/sliderbg"
+			android:background="@drawable/sliderbg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_marginBottom="40dip"
+            android:layout_marginBottom="52dip"
             android:focusable="true"
-            />
-
-        <TextView
-            android:id="@+id/carrier"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="18dip"
-            android:gravity="center_horizontal"
-            android:singleLine="true"
-            android:ellipsize="marquee"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textSize="@dimen/keyguard_lockscreen_status_line_font_size"
-            android:textColor="?android:attr/textColorSecondary"
             />
 
     </RelativeLayout>
