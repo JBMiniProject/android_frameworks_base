@@ -1271,6 +1271,10 @@
   <java-symbol type="drawable" name="unlock_halo_acer" />
   <java-symbol type="drawable" name="unlock_ring_acer" />
   <java-symbol type="drawable" name="unlock_wave_acer" />
+  <java-symbol type="drawable" name="unlock_default_bb10" />
+  <java-symbol type="drawable" name="unlock_halo_bb10" />
+  <java-symbol type="drawable" name="unlock_ring_bb10" />
+  <java-symbol type="drawable" name="unlock_wave_bb10" />
   <java-symbol type="drawable" name="unlock_default_eluga" />
   <java-symbol type="drawable" name="unlock_halo_eluga" />
   <java-symbol type="drawable" name="unlock_ring_eluga" />
@@ -1362,6 +1366,8 @@
   <java-symbol type="layout" name="keyguard_screen_xperias_unlock_land" />
   <java-symbol type="layout" name="keyguard_screen_acer_unlock" />
   <java-symbol type="layout" name="keyguard_screen_acer_unlock_land" />
+  <java-symbol type="layout" name="keyguard_screen_bb10_unlock" />
+  <java-symbol type="layout" name="keyguard_screen_bb10_unlock_land" />
   <java-symbol type="layout" name="keyguard_screen_eluga_unlock" />
   <java-symbol type="layout" name="keyguard_screen_eluga_unlock_land" />
   <java-symbol type="layout" name="keyguard_screen_sgs_unlock" />
