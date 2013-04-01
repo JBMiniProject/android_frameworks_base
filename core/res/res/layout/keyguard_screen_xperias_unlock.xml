@@ -244,7 +244,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="250dip">
+        android:layout_height="302dip">
 
     <!-- CyanogenMod Calendar Panel -->
     <LinearLayout
@@ -312,7 +312,7 @@
         <com.android.internal.widget.SlidingTab
             android:id="@+id/unlock_widget"
             android:orientation="horizontal"
-			android:background="@drawable/sliderbg"
+            android:background="@drawable/sliderbg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"

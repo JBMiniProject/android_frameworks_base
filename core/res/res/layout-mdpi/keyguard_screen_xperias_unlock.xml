@@ -30,8 +30,8 @@
     android:id="@+id/root"
     android:gravity="center_horizontal"
     android:background="#70000000">
-  
-	<TextView
+
+        <TextView
             android:id="@+id/carrier"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
             android:textColor="?android:attr/textColorSecondary"
             android:textStyle="bold"
             />
-			
+
         <TextView
             android:id="@+id/status1"
             android:layout_width="match_parent"
@@ -312,7 +312,7 @@
         <com.android.internal.widget.SlidingTab
             android:id="@+id/unlock_widget"
             android:orientation="horizontal"
-			android:background="@drawable/sliderbg"
+            android:background="@drawable/sliderbg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
