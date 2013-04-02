@@ -693,6 +693,11 @@ public class KeyguardUpdateMonitor {
                        Settings.System.LOCKSCREEN_ALWAYS_SHOW_BATTERY, 0) == 1;
     }
 
+    public boolean shouldXperiaS() {
+        return Settings.System.getInt(mContext.getContentResolver(),
+                        Settings.System.LOCKSCREEN_STYLE, 0) == 3;
+    }
+
     public CharSequence getTelephonyPlmn() {
         return mTelephonyPlmn;
     }

@@ -87,7 +87,9 @@ class KeyguardStatusViewManager implements OnClickListener {
     public static final int LOCK_ICON = 0; // R.drawable.ic_lock_idle_lock;
     public static final int ALARM_ICON = R.drawable.ic_lock_idle_alarm;
     public static final int CHARGING_ICON = 0; //R.drawable.ic_lock_idle_charging;
+    public static final int CHARGING_ICON_XS = R.drawable.ic_lock_idle_charging;
     public static final int DISCHARGING_ICON = 0;
+    public static final int DISCHARGING_ICON_XS = R.drawable.ic_lock_idle_discharging;
     public static final int BATTERY_LOW_ICON = 0; //R.drawable.ic_lock_idle_low_battery;
     private static final long INSTRUCTION_RESET_DELAY = 2000; // time until instruction text resets
 
@@ -140,6 +142,8 @@ class KeyguardStatusViewManager implements OnClickListener {
     private KeyguardUpdateMonitor mUpdateMonitor;
     private Button mEmergencyCallButton;
     private boolean mEmergencyButtonEnabledBecauseSimLocked;
+
+    private boolean mXperiaSlock = false;
 
     // Shadowed text values
     private CharSequence mCarrierText;
@@ -699,6 +703,7 @@ class KeyguardStatusViewManager implements OnClickListener {
     void resetStatusInfo() {
         mInstructionText = null;
         mShowingBatteryInfo = mUpdateMonitor.shouldShowBatteryInfo();
+        mXperiaSlock = mUpdateMonitor.shouldXperiaS();
         mPluggedIn = mUpdateMonitor.isDevicePluggedIn();
         mBatteryLevel = mUpdateMonitor.getBatteryLevel();
         mAlwaysShowBattery = KeyguardUpdateMonitor.shouldAlwaysShowBatteryInfo(getContext());
@@ -822,21 +827,43 @@ class KeyguardStatusViewManager implements OnClickListener {
         if (mShowingBatteryInfo) {
             // Battery status
             if (mPluggedIn) {
-                // Charging or charged
-                if (mUpdateMonitor.isDeviceCharged()) {
-                    string = getContext().getString(R.string.lockscreen_charged);
+                if (mXperiaSlock) {
+                    // Charging or charged
+                    if (mUpdateMonitor.isDeviceCharged()) {
+                        string = getContext().getString(R.string.lockscreen_charged_xs);
+                    } else {
+                        string = getContext().getString(R.string.lockscreen_plugged_in_xs, mBatteryLevel);
+                    }
+                    icon.value = CHARGING_ICON_XS;
                 } else {
-                    string = getContext().getString(R.string.lockscreen_plugged_in, mBatteryLevel);
+                    // Charging or charged
+                    if (mUpdateMonitor.isDeviceCharged()) {
+                        string = getContext().getString(R.string.lockscreen_charged);
+                    } else {
+                        string = getContext().getString(R.string.lockscreen_plugged_in, mBatteryLevel);
+                    }
+                    icon.value = CHARGING_ICON;
                 }
-                icon.value = CHARGING_ICON;
             } else if (mBatteryLevel < KeyguardUpdateMonitor.LOW_BATTERY_THRESHOLD) {
-                // Battery is low
-                string = getContext().getString(R.string.lockscreen_low_battery, mBatteryLevel);
-                icon.value = BATTERY_LOW_ICON;
+                if (mXperiaSlock) {
+                    // Battery is low
+                    string = getContext().getString(R.string.lockscreen_low_battery, mBatteryLevel);
+                    icon.value = BATTERY_LOW_ICON;
+                } else {
+                    // Battery is low
+                    string = getContext().getString(R.string.lockscreen_low_battery, mBatteryLevel);
+                    icon.value = BATTERY_LOW_ICON;
+                }
             } else if (mAlwaysShowBattery) {
-                // Discharging
-                string = getContext().getString(R.string.lockscreen_discharging, mBatteryLevel);
-                icon.value = DISCHARGING_ICON;
+                if (mXperiaSlock) {
+                    // Discharging
+                    string = getContext().getString(R.string.lockscreen_discharging_xs, mBatteryLevel);
+                    icon.value = DISCHARGING_ICON_XS;
+                } else {
+                    // Discharging
+                    string = getContext().getString(R.string.lockscreen_discharging, mBatteryLevel);
+                    icon.value = DISCHARGING_ICON;
+                }
             }
         } else {
             string = mCarrierText;
@@ -854,20 +881,39 @@ class KeyguardStatusViewManager implements OnClickListener {
             // Battery status
             if (mPluggedIn) {
                 // Charging or charged
-                if (mUpdateMonitor.isDeviceCharged()) {
-                    string = getContext().getString(R.string.lockscreen_charged);
+                if (mXperiaSlock) {
+                    if (mUpdateMonitor.isDeviceCharged()) {
+                        string = getContext().getString(R.string.lockscreen_charged_xs);
+                    } else {
+                        string = getContext().getString(R.string.lockscreen_plugged_in_xs, mBatteryLevel);
+                    }
+                    icon.value = CHARGING_ICON_XS;
                 } else {
-                    string = getContext().getString(R.string.lockscreen_plugged_in, mBatteryLevel);
+                    if (mUpdateMonitor.isDeviceCharged()) {
+                        string = getContext().getString(R.string.lockscreen_charged);
+                    } else {
+                        string = getContext().getString(R.string.lockscreen_plugged_in, mBatteryLevel);
+                    }
+                    icon.value = CHARGING_ICON;
                 }
-                icon.value = CHARGING_ICON;
             } else if (mBatteryLevel < KeyguardUpdateMonitor.LOW_BATTERY_THRESHOLD) {
                 // Battery is low
-                string = getContext().getString(R.string.lockscreen_low_battery, mBatteryLevel);
-                icon.value = BATTERY_LOW_ICON;
+                if (mXperiaSlock) {
+                    string = getContext().getString(R.string.lockscreen_low_battery, mBatteryLevel);
+                    icon.value = BATTERY_LOW_ICON;
+                } else {
+                    string = getContext().getString(R.string.lockscreen_low_battery, mBatteryLevel);
+                    icon.value = BATTERY_LOW_ICON;
+                }
             } else if (mAlwaysShowBattery) {
                 // Discharging
-                string = getContext().getString(R.string.lockscreen_discharging, mBatteryLevel);
-                icon.value = DISCHARGING_ICON;
+                if (mXperiaSlock) {
+                    string = getContext().getString(R.string.lockscreen_discharging_xs, mBatteryLevel);
+                    icon.value = DISCHARGING_ICON_XS;
+                } else {
+                    string = getContext().getString(R.string.lockscreen_discharging, mBatteryLevel);
+                    icon.value = DISCHARGING_ICON;
+                }
             }
         } else if (!inWidgetMode() && mOwnerInfoView == null && mOwnerInfoText != null) {
             // OwnerInfo shows in status if we don't have a dedicated widget
