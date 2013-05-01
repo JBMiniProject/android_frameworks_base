@@ -59,6 +59,8 @@ import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.UserId;
+import android.provider.Settings;
+import android.provider.Settings.SettingNotFoundException;
 import android.util.EventLog;
 import android.util.Log;
 import android.util.Slog;
@@ -930,9 +932,9 @@ final class ActivityStack {
         int h = mThumbnailHeight;
         if (w < 0) {
             mThumbnailWidth = w =
-                res.getDimensionPixelSize(com.android.internal.R.dimen.thumbnail_width);
+                res.getDimensionPixelSize(com.android.internal.R.dimen.thumbnail_width_sense4);
             mThumbnailHeight = h =
-                res.getDimensionPixelSize(com.android.internal.R.dimen.thumbnail_height);
+                res.getDimensionPixelSize(com.android.internal.R.dimen.thumbnail_height_sense4);
         }
 
         if (w > 0) {

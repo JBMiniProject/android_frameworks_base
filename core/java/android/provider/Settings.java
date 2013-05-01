@@ -3184,6 +3184,19 @@ public final class Settings {
           */
          public static final String VOLUME_KEY_CURSOR_CONTROL = "volume_key_cursor_control";
 
+          /**
+           * Toggle to render the recent apps view resembling sense 4.0
+           * @hide
+           */
+           public static final String SENSE4_RECENT_APPS = "sense4_recent_apps";
+
+        /**
+         * whether to hide the Ram Usage Bar on recent switcher
+         *
+         * @hide
+         */
+        public static final String RECENTS_RAM_BAR = "recents_ram_bar";
+
         /**
          * Show the pending notification counts as overlays on the status bar
 
