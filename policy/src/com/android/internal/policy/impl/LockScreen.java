@@ -862,46 +862,28 @@ class LockScreen extends RelativeLayout implements KeyguardScreen {
 
         if (LockPatternKeyguardView.DEBUG_CONFIGURATION) {
             Log.v(TAG, "***** CREATING LOCK SCREEN", new RuntimeException());
-            Log.v(TAG, "Cur orient=" + mCreationOrientation
-                    + " res orient=" + context.getResources().getConfiguration().orientation);
         }
 
         final LayoutInflater inflater = LayoutInflater.from(context);
-        if (DBG) Log.v(TAG, "Creation orientation = " + mCreationOrientation);
-        if (mCreationOrientation != Configuration.ORIENTATION_LANDSCAPE) {
-            if (mUseSlider)
-                inflater.inflate(R.layout.keyguard_screen_slider_unlock, this, true);
-            else if (mUseRotary)
-                inflater.inflate(R.layout.keyguard_screen_rotary_unlock, this, true);
-            else if (mUseXperiaS)
-                inflater.inflate(R.layout.keyguard_screen_xperias_unlock, this, true);
-            else if (mUseSGS)
-                inflater.inflate(R.layout.keyguard_screen_sgs_unlock, this, true);
-            else if (mUseSense)
-                inflater.inflate(R.layout.keyguard_screen_sense_unlock, this, true);
-            else if (mUseAcer)
-                inflater.inflate(R.layout.keyguard_screen_acer_unlock, this, true);
-            else if (mUseEluga)
-                inflater.inflate(R.layout.keyguard_screen_eluga_unlock, this, true);
-            else if (mUseBB10)
-                inflater.inflate(R.layout.keyguard_screen_bb10_unlock, this, true);
-            else
-                inflater.inflate(R.layout.keyguard_screen_tab_unlock, this, true);
+
+        if (mUseSlider) {
+            inflater.inflate(R.layout.keyguard_screen_slider_unlock, this, true);
+        } else if (mUseRotary) {
+            inflater.inflate(R.layout.keyguard_screen_rotary_unlock, this, true);
+        } else if (mUseXperiaS) {
+            inflater.inflate(R.layout.keyguard_screen_xperias_unlock, this, true);
+        } else if (mUseSGS) {
+            inflater.inflate(R.layout.keyguard_screen_sgs_unlock, this, true);
+        } else if (mUseSense) {
+            inflater.inflate(R.layout.keyguard_screen_sense_unlock, this, true);
+        } else if (mUseAcer) {
+            inflater.inflate(R.layout.keyguard_screen_acer_unlock, this, true);
+        } else if (mUseEluga) {
+            inflater.inflate(R.layout.keyguard_screen_eluga_unlock, this, true);
+        } else if (mUseBB10) {
+            inflater.inflate(R.layout.keyguard_screen_bb10_unlock, this, true);
         } else {
-            if (mUseSlider)
-                inflater.inflate(R.layout.keyguard_screen_slider_unlock_land, this, true);
-            else if (mUseRotary)
-                inflater.inflate(R.layout.keyguard_screen_rotary_unlock_land, this, true);
-            else if (mUseXperiaS)
-                inflater.inflate(R.layout.keyguard_screen_xperias_unlock_land, this, true);
-            else if (mUseSGS)
-                inflater.inflate(R.layout.keyguard_screen_sgs_unlock_land, this, true);
-            else if (mUseSense)
-                inflater.inflate(R.layout.keyguard_screen_sense_unlock_land, this, true);
-            else if (mUseAcer)
-                inflater.inflate(R.layout.keyguard_screen_acer_unlock_land, this, true);
-            else
-                inflater.inflate(R.layout.keyguard_screen_tab_unlock_land, this, true);
+            inflater.inflate(R.layout.keyguard_screen_tab_unlock, this, true);
         }
 
         setBackground(mContext, (ViewGroup) findViewById(R.id.root));
