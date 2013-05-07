@@ -1361,21 +1361,13 @@
   <java-symbol type="layout" name="keyguard_screen_unlock_landscape" />
   <java-symbol type="layout" name="keyguard_screen_unlock_portrait" />
   <java-symbol type="layout" name="keyguard_screen_rotary_unlock" />
-  <java-symbol type="layout" name="keyguard_screen_rotary_unlock_land" />
   <java-symbol type="layout" name="keyguard_screen_slider_unlock" />
-  <java-symbol type="layout" name="keyguard_screen_slider_unlock_land" />
   <java-symbol type="layout" name="keyguard_screen_xperias_unlock" />
-  <java-symbol type="layout" name="keyguard_screen_xperias_unlock_land" />
   <java-symbol type="layout" name="keyguard_screen_acer_unlock" />
-  <java-symbol type="layout" name="keyguard_screen_acer_unlock_land" />
   <java-symbol type="layout" name="keyguard_screen_bb10_unlock" />
-  <java-symbol type="layout" name="keyguard_screen_bb10_unlock_land" />
   <java-symbol type="layout" name="keyguard_screen_eluga_unlock" />
-  <java-symbol type="layout" name="keyguard_screen_eluga_unlock_land" />
   <java-symbol type="layout" name="keyguard_screen_sgs_unlock" />
-  <java-symbol type="layout" name="keyguard_screen_sgs_unlock_land" />
   <java-symbol type="layout" name="keyguard_screen_sense_unlock" />
-  <java-symbol type="layout" name="keyguard_screen_sense_unlock_land" />
   <java-symbol type="layout" name="recent_apps_dialog" />
   <java-symbol type="layout" name="screen_action_bar" />
   <java-symbol type="layout" name="screen_action_bar_overlay" />
