@@ -2338,6 +2338,13 @@ public final class Settings {
         public static final String NOISE_SUPPRESSION = "noise_suppression";
 
         /**
+         * Whether natural motion is enabled. The value is
+         * boolean (1 or 0).
+         * @hide
+         */
+        public static final String NATURAL_MOTION = "natural_motion";
+
+        /**
          * Whether the sounds effects (key clicks, lid open ...) are enabled. The value is
          * boolean (1 or 0).
          */
