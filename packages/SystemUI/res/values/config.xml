@@ -66,5 +66,12 @@
 
     <!-- The length of the vibration when the notificaiotn pops open. -->
     <integer name="blinds_pop_duration_ms">10</integer>
+
+    <bool name="quick_settings_show_rotation_lock">false</bool>
+    <integer name="quick_settings_user_time_settings_tile_span">1</integer>
+    <integer name="quicktile_num_columns">3</integer>
+    <integer name="quick_settings_num_columns">3</integer>
+    <integer name="quick_settings_brightness_dialog_short_timeout">2000</integer>
+    <integer name="quick_settings_brightness_dialog_long_timeout">4000</integer>
 </resources>
 

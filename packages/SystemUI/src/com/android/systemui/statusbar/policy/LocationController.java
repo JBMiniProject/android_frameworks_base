@@ -38,6 +38,7 @@ import android.app.INotificationManager;
 import com.android.internal.statusbar.StatusBarNotification;
 
 import com.android.systemui.R;
+import com.android.systemui.statusbar.policy.BatteryController.BatteryStateChangeCallback;
 
 public class LocationController extends BroadcastReceiver implements CompoundButton.OnCheckedChangeListener {
     private static final String TAG = "StatusBar.LocationController";
@@ -50,6 +51,13 @@ public class LocationController extends BroadcastReceiver implements CompoundBut
     private INotificationManager mNotificationService;
 
     private boolean mGps;
+
+    private ArrayList<LocationGpsStateChangeCallback> mChangeCallbacks =
+            new ArrayList<LocationGpsStateChangeCallback>();
+
+    public interface LocationGpsStateChangeCallback {
+        public void onLocationGpsStateChanged(boolean inUse, String description);
+    }
 
     public LocationController(Context context, CompoundButton checkbox) {
         this(context);
@@ -86,6 +94,10 @@ public class LocationController extends BroadcastReceiver implements CompoundBut
         mContext.unregisterReceiver(this);
     }
 
+    public void addStateChangedCallback(LocationGpsStateChangeCallback cb) {
+        mChangeCallbacks.add(cb);
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
         final String action = intent.getAction();
@@ -109,16 +121,18 @@ public class LocationController extends BroadcastReceiver implements CompoundBut
             textResId = R.string.gps_notification_searching_text;
             visible = true;
         }
-        
+
         try {
             if (visible) {
                 Intent gpsIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 gpsIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
                 PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, gpsIntent, 0);
+                String text = mContext.getText(textResId).toString();
 
                 Notification n = new Notification.Builder(mContext)
                     .setSmallIcon(iconId)
-                    .setContentTitle(mContext.getText(textResId))
+                    .setContentTitle(text)
                     .setOngoing(true)
                     .setContentIntent(pendingIntent)
                     .getNotification();
@@ -126,24 +140,27 @@ public class LocationController extends BroadcastReceiver implements CompoundBut
                 // Notification.Builder will helpfully fill these out for you no matter what you do
                 n.tickerView = null;
                 n.tickerText = null;
-                
+
                 n.priority = Notification.PRIORITY_HIGH;
 
                 int[] idOut = new int[1];
                 mNotificationService.enqueueNotificationWithTag(
                         mContext.getPackageName(),
-                        null, 
-                        GPS_NOTIFICATION_ID, 
+                        null,
+                        GPS_NOTIFICATION_ID,
                         n,
                         idOut);
             } else {
                 mNotificationService.cancelNotification(
                         mContext.getPackageName(),
                         GPS_NOTIFICATION_ID);
+
+                for (LocationGpsStateChangeCallback cb : mChangeCallbacks) {
+                    cb.onLocationGpsStateChanged(false, null);
+                }
             }
         } catch (android.os.RemoteException ex) {
             // well, it was worth a shot
         }
     }
 }
-

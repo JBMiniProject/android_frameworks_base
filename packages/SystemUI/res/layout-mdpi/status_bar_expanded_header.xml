@@ -63,6 +63,13 @@
             />
     </LinearLayout>
 
+    <ImageButton android:id="@+id/quick_button"
+        android:background="@*android:color/transparent"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:scaleType="center"
+        />
+
     <ImageView android:id="@+id/clear_all_button"
         android:layout_width="32dp"
         android:layout_height="32dp"

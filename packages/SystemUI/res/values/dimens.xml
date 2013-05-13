@@ -166,4 +166,8 @@
 
     <!-- The size of the gesture span needed to activate the "pull" notification expansion -->
     <dimen name="pull_span_min">25dp</dimen>
+
+    <dimen name="quick_settings_cell_height">110dp</dimen>
+    <dimen name="quick_settings_cell_gap">4dp</dimen>
+    <dimen name="quicktile_cell_gap">4dp</dimen>
 </resources>

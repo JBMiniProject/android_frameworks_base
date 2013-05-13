@@ -17,9 +17,8 @@
 
 package com.android.systemui.statusbar.policy;
 
-import java.util.ArrayList;
-
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothAdapter.BluetoothStateChangeCallback;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +26,8 @@ import android.content.IntentFilter;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.CompoundButton;
+
+import java.util.ArrayList;
 
 import com.android.systemui.R;
 
@@ -51,6 +52,9 @@ public class BluetoothController extends BroadcastReceiver implements CompoundBu
         mCheckBox.setOnCheckedChangeListener(this);
     }
 
+    private ArrayList<BluetoothStateChangeCallback> mChangeCallbacks =
+            new ArrayList<BluetoothStateChangeCallback>();
+
     public BluetoothController(Context context) {
         mContext = context;
 
@@ -69,6 +73,10 @@ public class BluetoothController extends BroadcastReceiver implements CompoundBu
 
     public void addIconView(ImageView v) {
         mIconViews.add(v);
+    }
+
+    public void addStateChangedCallback(BluetoothStateChangeCallback cb) {
+        mChangeCallbacks.add(cb);
     }
 
     @Override
@@ -149,6 +157,9 @@ public class BluetoothController extends BroadcastReceiver implements CompoundBu
             v.setContentDescription((mContentDescriptionId == 0)
                     ? null
                     : mContext.getString(mContentDescriptionId));
+        }
+        for (BluetoothStateChangeCallback cb : mChangeCallbacks) {
+            cb.onBluetoothStateChange(mEnabled);
         }
     }
 }

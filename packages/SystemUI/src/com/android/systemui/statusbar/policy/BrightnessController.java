@@ -62,10 +62,10 @@ public class BrightnessController implements ToggleSlider.Listener {
             control.setChecked(false);
             //control.hideToggle();
         }
-        
+
         int value;
         try {
-            value = Settings.System.getInt(mContext.getContentResolver(), 
+            value = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.SCREEN_BRIGHTNESS);
         } catch (SettingNotFoundException ex) {
             value = MAXIMUM_BACKLIGHT;
@@ -86,7 +86,7 @@ public class BrightnessController implements ToggleSlider.Listener {
             if (!tracking) {
                 AsyncTask.execute(new Runnable() {
                         public void run() {
-                            Settings.System.putInt(mContext.getContentResolver(), 
+                            Settings.System.putInt(mContext.getContentResolver(),
                                     Settings.System.SCREEN_BRIGHTNESS, val);
                         }
                     });
@@ -98,11 +98,11 @@ public class BrightnessController implements ToggleSlider.Listener {
         Settings.System.putInt(mContext.getContentResolver(),
                 Settings.System.SCREEN_BRIGHTNESS_MODE, mode);
     }
-    
+
     private void setBrightness(int brightness) {
         try {
             mPower.setBacklightBrightness(brightness);
         } catch (RemoteException ex) {
-        }        
+        }
     }
 }

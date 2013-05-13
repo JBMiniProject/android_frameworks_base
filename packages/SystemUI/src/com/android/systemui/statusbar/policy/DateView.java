@@ -41,7 +41,7 @@ import com.android.systemui.R;
 
 import java.util.Date;
 
-public final class DateView extends LinearLayout implements OnClickListener, OnLongClickListener {
+public class DateView extends LinearLayout implements OnClickListener, OnLongClickListener {
     private static final String TAG = "DateView";
 
     private TextView mDoW;
@@ -140,7 +140,7 @@ public final class DateView extends LinearLayout implements OnClickListener, OnL
         return 0;
     }
 
-    private final void updateClock() {
+    protected void updateClock() {
         final Context context = getContext();
         Date now = new Date();
         CharSequence dow = DateFormat.format("EEEE", now);

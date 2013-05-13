@@ -79,6 +79,8 @@
             android:layout_height="@dimen/notification_panel_header_height"
             />
 
+        <include layout="@layout/quicktile" />
+
         <com.android.systemui.statusbar.powerwidget.PowerWidget
             android:id="@+id/exp_power_stat"
             android:layout_width="match_parent"
@@ -109,6 +111,7 @@
                 systemui:rowHeight="@dimen/notification_row_min_height"
                 />
         </ScrollView>
+
     </LinearLayout>
 
     <com.android.systemui.statusbar.phone.CloseDragHandle android:id="@+id/close"

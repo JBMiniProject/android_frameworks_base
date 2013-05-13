@@ -18,6 +18,7 @@ package com.android.systemui.statusbar.policy;
 
 import java.util.ArrayList;
 
+import android.bluetooth.BluetoothAdapter.BluetoothStateChangeCallback;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -40,6 +41,8 @@ public class BatteryController extends BroadcastReceiver {
     private Context mContext;
     private ArrayList<ImageView> mIconViews = new ArrayList<ImageView>();
     private ArrayList<TextView> mLabelViews = new ArrayList<TextView>();
+    private ArrayList<BatteryStateChangeCallback> mChangeCallbacks =
+            new ArrayList<BatteryStateChangeCallback>();
 
     private static final int BATTERY_STYLE_NORMAL         = 0;
     private static final int BATTERY_STYLE_PERCENT        = 1;
@@ -85,6 +88,10 @@ public class BatteryController extends BroadcastReceiver {
         }
     }
 
+    public interface BatteryStateChangeCallback {
+        public void onBatteryLevelChanged(int level, boolean pluggedIn);
+    }
+
     public BatteryController(Context context) {
         mContext = context;
 
@@ -107,6 +114,10 @@ public class BatteryController extends BroadcastReceiver {
         mLabelViews.add(v);
     }
 
+    public void addStateChangedCallback(BatteryStateChangeCallback cb) {
+        mChangeCallbacks.add(cb);
+    }
+
     public void onReceive(Context context, Intent intent) {
         final String action = intent.getAction();
         if (action.equals(Intent.ACTION_BATTERY_CHANGED)) {
@@ -125,6 +136,9 @@ public class BatteryController extends BroadcastReceiver {
                 TextView v = mLabelViews.get(i);
                 v.setText(mContext.getString(BATTERY_TEXT_STYLE_MIN,
                         level));
+            }
+            for (BatteryStateChangeCallback cb : mChangeCallbacks) {
+                cb.onBatteryLevelChanged(level, mBatteryPlugged);
             }
             updateBattery();
         }

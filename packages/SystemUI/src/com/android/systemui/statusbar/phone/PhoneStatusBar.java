@@ -82,6 +82,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -109,6 +110,8 @@ import com.android.systemui.statusbar.policy.LocationController;
 import com.android.systemui.statusbar.policy.OnSizeChangedListener;
 import com.android.systemui.statusbar.policy.NetworkController;
 import com.android.systemui.statusbar.policy.NotificationRowLayout;
+import com.android.systemui.statusbar.quicksettings.QuickSettingsContainerView;
+import com.android.systemui.statusbar.quicksettings.QuickSettingsController;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -181,6 +184,7 @@ public class PhoneStatusBar extends BaseStatusBar {
 
     StatusBarWindowView mStatusBarWindow;
     PhoneStatusBarView mStatusBarView;
+    private boolean NotifEnable = true;
 
     int mPixelFormat;
     Object mQueueLock = new Object();
@@ -205,6 +209,7 @@ public class PhoneStatusBar extends BaseStatusBar {
     View mButtonsBar;
     View mClearButton;
     View mSettingsButton;
+    ImageButton mQuickSettingsButton;
     RotationToggle mRotationButton;
 
     // carrier/wifi label
@@ -222,6 +227,9 @@ public class PhoneStatusBar extends BaseStatusBar {
     // drag bar
     CloseDragHandle mCloseView;
     private int mCloseViewHeight;
+
+    QuickSettingsController mQS;
+    QuickSettingsContainerView mQuickContainer;
 
     // position
     int[] mPositionTmp = new int[2];
@@ -529,6 +537,9 @@ public class PhoneStatusBar extends BaseStatusBar {
         });
         mSettingsButton = mStatusBarWindow.findViewById(R.id.settings_button);
         mSettingsButton.setOnClickListener(mSettingsButtonListener);
+        mQuickSettingsButton = (ImageButton) mStatusBarWindow.findViewById(R.id.quick_button);
+        mQuickSettingsButton.setImageResource(R.drawable.ic_notify_qs_normal);
+        mQuickSettingsButton.setOnClickListener(mQuickSettingsButtonListener);
         mRotationButton = (RotationToggle) mStatusBarWindow.findViewById(R.id.rotation_lock_button);
         mButtonsBar = mStatusBarWindow.findViewById(R.id.buttons_bar);
 
@@ -639,6 +650,13 @@ public class PhoneStatusBar extends BaseStatusBar {
             }
         });
 
+        mQuickContainer = (QuickSettingsContainerView)mStatusBarWindow.findViewById(R.id.quick_settings_container);
+        mQuickContainer.setVisibility(View.GONE);
+
+        if (mQuickContainer != null) {
+            mQS = new QuickSettingsController(context, mQuickContainer);
+        }
+
         // set up the dynamic hide/show of the labels
         mPile.setOnSizeChangedListener(new OnSizeChangedListener() {
             @Override
@@ -664,7 +682,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         context.registerReceiver(mBroadcastReceiver, filter);
 
         mPowerWidget.setupWidget();
-
+        mQS.setupQuickSettings();
         mVelocityTracker = VelocityTracker.obtain();
 
         return mStatusBarView;
@@ -1059,6 +1077,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         }
 
         mSettingsButton.setEnabled(isDeviceProvisioned());
+        mQuickSettingsButton.setEnabled(isDeviceProvisioned());
     }
 
     private void reloadAllNotificationIcons() {
@@ -1195,6 +1214,10 @@ public class PhoneStatusBar extends BaseStatusBar {
             computeDateViewWidth();
         }
         mClearButton.setEnabled(clearable);
+
+        if (clearable) {
+            toggleNotif();
+        }
 
         final View nlo = mStatusBarView.findViewById(R.id.notification_lights_out);
         final boolean showDot = (any&&!areLightsOn());
@@ -2557,6 +2580,16 @@ public class PhoneStatusBar extends BaseStatusBar {
         }
     };
 
+    private View.OnClickListener mQuickSettingsButtonListener = new View.OnClickListener() {
+        public void onClick(View v) {
+            if (NotifEnable) {
+                togglePower();
+            } else {
+                toggleNotif();
+            }
+        }
+    };
+
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -2582,6 +2615,28 @@ public class PhoneStatusBar extends BaseStatusBar {
             }
         }
     };
+
+    public void toggleNotif() {
+        mQuickSettingsButton.setImageResource(R.drawable.ic_notify_qs_normal);
+        mCarrierAndWifiView.setVisibility(View.VISIBLE);
+        mCarrierAndWifiView.startAnimation(loadAnim(com.android.internal.R.anim.slide_in_left, null));
+        mPowerWidget.setVisibility(View.VISIBLE);
+        mPowerWidget.startAnimation(loadAnim(com.android.internal.R.anim.slide_in_left, null));
+        mQuickContainer.setVisibility(View.GONE);
+        mQuickContainer.startAnimation(loadAnim(com.android.internal.R.anim.slide_out_left, null));
+        NotifEnable = true;
+    }
+
+    public void togglePower() {
+        mQuickSettingsButton.setImageResource(R.drawable.ic_notify_open_normal);
+        mCarrierAndWifiView.setVisibility(View.GONE);
+        mCarrierAndWifiView.startAnimation(loadAnim(com.android.internal.R.anim.slide_out_right, null));
+        mPowerWidget.setVisibility(View.GONE);
+        mPowerWidget.startAnimation(loadAnim(com.android.internal.R.anim.slide_out_right, null));
+        mQuickContainer.setVisibility(View.VISIBLE);
+        mQuickContainer.startAnimation(loadAnim(com.android.internal.R.anim.slide_in_right, null));
+        NotifEnable = false;
+    }
 
     private void setIntruderAlertVisibility(boolean vis) {
         if (!ENABLE_INTRUDERS) return;
@@ -2740,6 +2795,8 @@ public class PhoneStatusBar extends BaseStatusBar {
             + res.getDimensionPixelSize(R.dimen.close_handle_underlap);
 
         mCarrierAndWifiViewHeight = res.getDimensionPixelSize(R.dimen.carrier_label_height);
+
+        if (mQS != null) mQS.updateResources();
 
         if (false) Slog.v(TAG, "updateResources");
     }

@@ -183,6 +183,7 @@
 
     <drawable name="notification_template_icon_bg">#3333B5E5</drawable>
     <drawable name="notification_template_icon_low_bg">#0cffffff</drawable>
+    <color name="color_default_jbmp">#ff00caff</color>
 
 </resources>
 
