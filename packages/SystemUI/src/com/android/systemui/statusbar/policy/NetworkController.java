@@ -80,6 +80,7 @@ public class NetworkController extends BroadcastReceiver {
     String mNetworkNameDefault;
     String mNetworkNameSeparator;
     int mPhoneSignalIconId;
+    int mPhoneSignalQSIconId;
     int mDataDirectionIconId; // data + data direction on phones
     int mDataSignalIconId;
     int mDataTypeIconId;
@@ -176,7 +177,8 @@ public class NetworkController extends BroadcastReceiver {
 
     public interface NetworkSignalChangedCallback {
         void onWifiSignalChanged(boolean enabled, int mWifiSignalIconId, String description);
-        void onMobileDataSignalChanged(boolean enabled, String description);
+        void onMobileDataSignalChanged(boolean enabled, int mPhoneSignalQSIconId, String descriptiond);
+//        void onMobileDataSignalChanged(boolean enabled, String description);
     }
 
     /**
@@ -349,14 +351,14 @@ public class NetworkController extends BroadcastReceiver {
         cb.onWifiSignalChanged(wifiEnabled, mWifiSignalIconId, wifiDesc);
 
         if (isEmergencyOnly()) {
-            cb.onMobileDataSignalChanged(false, null);
+            cb.onMobileDataSignalChanged(false, mPhoneSignalQSIconId, null);
         } else {
             if (mIsWimaxEnabled && mWimaxConnected) {
                 // wimax is special
-                cb.onMobileDataSignalChanged(true, mNetworkName);
+                cb.onMobileDataSignalChanged(true, mPhoneSignalQSIconId, mNetworkName);
             } else {
                 // normal mobile data
-                cb.onMobileDataSignalChanged(mHasMobileDataFeature, mNetworkName);
+                cb.onMobileDataSignalChanged(mHasMobileDataFeature, mPhoneSignalQSIconId, mNetworkName);
             }
         }
 //        cb.onAirplaneModeChanged(mAirplaneMode);
@@ -515,17 +517,20 @@ public class NetworkController extends BroadcastReceiver {
         if (!hasService()) {
             if (CHATTY) Slog.d(TAG, "updateTelephonySignalStrength: !hasService()");
             mPhoneSignalIconId = R.drawable.stat_sys_signal_null;
+            mPhoneSignalQSIconId = R.drawable.ic_qs_signal_no_signal;
             mDataSignalIconId = R.drawable.stat_sys_signal_null;
         } else {
             if (mSignalStrength == null) {
                 if (CHATTY) Slog.d(TAG, "updateTelephonySignalStrength: mSignalStrength == null");
                 mPhoneSignalIconId = R.drawable.stat_sys_signal_null;
+                mPhoneSignalQSIconId = R.drawable.ic_qs_signal_no_signal;
                 mDataSignalIconId = R.drawable.stat_sys_signal_null;
                 mContentDescriptionPhoneSignal = mContext.getString(
                         AccessibilityContentDescriptions.PHONE_SIGNAL_STRENGTH[0]);
             } else {
                 int iconLevel;
                 int[] iconList;
+                int[] iconListQS;
                 if (isCdma() && mAlwaysShowCdmaRssi) {
                     mLastSignalLevel = iconLevel = mSignalStrength.getCdmaLevel();
                     if(DEBUG) Slog.d(TAG, "mAlwaysShowCdmaRssi=" + mAlwaysShowCdmaRssi
@@ -538,18 +543,23 @@ public class NetworkController extends BroadcastReceiver {
                 if (isCdma()) {
                     if (isCdmaEri()) {
                         iconList = TelephonyIcons.TELEPHONY_SIGNAL_STRENGTH_ROAMING[mInetCondition];
+                        iconListQS = TelephonyIcons.TELEPHONY_SIGNAL_STRENGTH_ROAMING[mInetCondition];
                     } else {
                         iconList = TelephonyIcons.TELEPHONY_SIGNAL_STRENGTH[mInetCondition];
+                        iconListQS = TelephonyIcons.TELEPHONY_SIGNAL_STRENGTH_QS[mInetCondition];
                     }
                 } else {
                     // Though mPhone is a Manager, this call is not an IPC
                     if (mPhone.isNetworkRoaming()) {
                         iconList = TelephonyIcons.TELEPHONY_SIGNAL_STRENGTH_ROAMING[mInetCondition];
+                        iconListQS = TelephonyIcons.TELEPHONY_SIGNAL_STRENGTH_ROAMING[mInetCondition];
                     } else {
                         iconList = TelephonyIcons.TELEPHONY_SIGNAL_STRENGTH[mInetCondition];
+                        iconListQS = TelephonyIcons.TELEPHONY_SIGNAL_STRENGTH_QS[mInetCondition];
                     }
                 }
                 mPhoneSignalIconId = iconList[iconLevel];
+                mPhoneSignalQSIconId = iconListQS[iconLevel];
                 mContentDescriptionPhoneSignal = mContext.getString(
                         AccessibilityContentDescriptions.PHONE_SIGNAL_STRENGTH[iconLevel]);
                 mDataSignalIconId = TelephonyIcons.DATA_SIGNAL_STRENGTH[mInetCondition][iconLevel];
@@ -981,7 +991,7 @@ public class NetworkController extends BroadcastReceiver {
         final boolean emergencyOnly = isEmergencyOnly();
 
         if (!mHasMobileDataFeature) {
-            mDataSignalIconId = mPhoneSignalIconId = 0;
+            mDataSignalIconId = mPhoneSignalIconId = mPhoneSignalQSIconId = 0;
             mobileLabel = "";
         } else {
             // We want to show the carrier name if in service and either:
@@ -1092,7 +1102,7 @@ public class NetworkController extends BroadcastReceiver {
             mContentDescriptionPhoneSignal = mContext.getString(
                     R.string.accessibility_airplane_mode);
             mAirplaneIconId = R.drawable.stat_sys_signal_flightmode;
-            mPhoneSignalIconId = mDataSignalIconId = mDataTypeIconId = 0;
+            mPhoneSignalIconId = mDataSignalIconId = mDataTypeIconId = mPhoneSignalQSIconId = 0;
 
             // combined values from connected networks take precedence over airplane mode
             if (mWifiConnected || mBluetoothTethered || ethernetConnected) {
@@ -1146,7 +1156,8 @@ public class NetworkController extends BroadcastReceiver {
                     + " combinedLabel=" + combinedLabel
                     + " mAirplaneMode=" + mAirplaneMode
                     + " mDataActivity=" + mDataActivity
-                    + " mPhoneSignalIconId=0x" + Integer.toHexString(mPhoneSignalIconId)
+                    + " mPhoneSignalIconId=0x" + Integer.toHexString(mPhoneSignalQSIconId)
+                    + " mPhoneSignalQSIconId=0x" + Integer.toHexString(mPhoneSignalIconId)
                     + " mDataDirectionIconId=0x" + Integer.toHexString(mDataDirectionIconId)
                     + " mDataSignalIconId=0x" + Integer.toHexString(mDataSignalIconId)
                     + " mDataTypeIconId=0x" + Integer.toHexString(mDataTypeIconId)

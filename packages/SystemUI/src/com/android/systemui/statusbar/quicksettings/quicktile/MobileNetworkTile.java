@@ -64,10 +64,10 @@ public class MobileNetworkTile extends QuickSettingsTile implements NetworkSigna
     }
 
     @Override
-    public void onMobileDataSignalChanged(boolean enabled, String description) {
+    public void onMobileDataSignalChanged(boolean enabled, int mPhoneSignalQSIconId, String description) {
         // TODO: If view is in awaiting state, disable
 //        dataOn = mMobileDataEnable;
-        mDrawable = R.drawable.stat_wifi_on; //mPhoneSignalIconId;
+        mDrawable = mPhoneSignalQSIconId;
         mDataTypeIconId = 1; //mDataSignalIconId;
         mLabel = description;
         updateQuickSettings();
