@@ -59,7 +59,7 @@ public class MobileNetworkTile extends QuickSettingsTile implements NetworkSigna
     }
 
     @Override
-    public void onWifiSignalChanged(boolean enabled, String description) {
+    public void onWifiSignalChanged(boolean enabled, int mWifiSignalIconId, String description) {
         // TODO Auto-generated method stub
     }
 

@@ -104,6 +104,7 @@ public class NetworkController extends BroadcastReceiver {
     int mWifiRssi, mWifiLevel;
     String mWifiSsid;
     int mWifiIconId = 0;
+    int mWifiSignalIconId = 0;
     int mWifiActivityIconId = 0; // overlay arrows for wifi direction
     int mWifiActivity = WifiManager.DATA_ACTIVITY_NONE;
 
@@ -174,9 +175,8 @@ public class NetworkController extends BroadcastReceiver {
     }
 
     public interface NetworkSignalChangedCallback {
-        void onWifiSignalChanged(boolean enabled, String description);
+        void onWifiSignalChanged(boolean enabled, int mWifiSignalIconId, String description);
         void onMobileDataSignalChanged(boolean enabled, String description);
-//        void onAirplaneModeChanged(boolean enabled);
     }
 
     /**
@@ -346,7 +346,7 @@ public class NetworkController extends BroadcastReceiver {
         boolean wifiEnabled = mWifiEnabled && (mWifiConnected || !mHasMobileDataFeature);
         String wifiDesc = wifiEnabled ?
                 mWifiSsid : null;
-        cb.onWifiSignalChanged(wifiEnabled, wifiDesc);
+        cb.onWifiSignalChanged(wifiEnabled, mWifiSignalIconId, wifiDesc);
 
         if (isEmergencyOnly()) {
             cb.onMobileDataSignalChanged(false, null);
@@ -846,13 +846,16 @@ public class NetworkController extends BroadcastReceiver {
     private void updateWifiIcons() {
         if (mWifiConnected) {
             mWifiIconId = WifiIcons.WIFI_SIGNAL_STRENGTH[mInetCondition][mWifiLevel];
+            mWifiSignalIconId = WifiIcons.WIFI_SIGNAL_STRENGTH_QS[mInetCondition][mWifiLevel];
             mContentDescriptionWifi = mContext.getString(
                     AccessibilityContentDescriptions.WIFI_CONNECTION_STRENGTH[mWifiLevel]);
         } else {
             if (mDataAndWifiStacked) {
                 mWifiIconId = 0;
+                mWifiSignalIconId = 0;
             } else {
                 mWifiIconId = mWifiEnabled ? R.drawable.stat_sys_wifi_signal_null : 0;
+                mWifiSignalIconId = mWifiEnabled ? R.drawable.stat_sys_wifi_signal_null : 0;
             }
             mContentDescriptionWifi = mContext.getString(R.string.accessibility_no_wifi);
         }
