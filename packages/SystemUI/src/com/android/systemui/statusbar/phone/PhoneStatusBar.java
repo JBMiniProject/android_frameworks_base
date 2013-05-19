@@ -2969,7 +2969,9 @@ public class PhoneStatusBar extends BaseStatusBar {
                     Settings.System.STATUSBAR_TRANSPARENCY), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.SENSE4_RECENT_APPS), false, this);
-            update();
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUICK_SETTINGS_TILES), false, this);
+            onChange(true);
         }
 
         @Override
@@ -2986,6 +2988,14 @@ public class PhoneStatusBar extends BaseStatusBar {
             mBrightnessControl = !autoBrightness && Settings.System.getInt(
                     resolver, Settings.System.STATUS_BAR_BRIGHTNESS_CONTROL, 0) == 1;
             setStatusBarParams(mStatusBarView);
+
+            if (mQuickContainer != null) {
+                if (mQS != null) {
+                    mQuickContainer.removeAllViews();
+                    mQS.setupQuickSettings();
+                    mQuickContainer.requestLayout();
+             }
+        }
         }
     }
 }
