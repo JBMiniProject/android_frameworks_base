@@ -158,8 +158,7 @@ public class QuickSettingsController {
         // Read the stored list of tiles
         ContentResolver resolver = mContext.getContentResolver();
 
-        String tiles = null; // Temporary not defineable the tiles!
-//        String tiles = Settings.System.getString(resolver, Settings.System.QUICK_SETTINGS_TILES);
+        String tiles = Settings.System.getString(resolver, Settings.System.QUICK_SETTINGS_TILES);
         if (tiles == null) {
             Log.i(TAG, "Default tiles being loaded");
             tiles = TILES_DEFAULT;
