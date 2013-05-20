@@ -89,7 +89,6 @@ public class QuickSettingsController {
     public static final String TILE_AUTOROTATE = "toggleAutoRotate";
     public static final String TILE_AIRPLANE = "toggleAirplane";
     public static final String TILE_TORCH = "toggleFlashlight";  // Keep old string for compatibility
-    public static final String TILE_WIMAX = "toggleWimax";
     public static final String TILE_LOCKSCREEN = "toggleLockscreen";
     public static final String TILE_USER = "toggleUser";
 
@@ -217,8 +216,6 @@ public class QuickSettingsController {
                 mQuickSettings.add(SLEEP_TILE);
             } else if (tile.equals(TILE_USER)) {
                 mQuickSettings.add(USER_TILE);
-            } else if (tile.equals(TILE_WIMAX)) {
-                // Not available yet
             }
         }
     }
