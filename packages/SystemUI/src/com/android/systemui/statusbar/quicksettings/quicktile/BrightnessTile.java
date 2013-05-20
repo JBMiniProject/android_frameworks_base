@@ -1,19 +1,23 @@
 package com.android.systemui.statusbar.quicksettings.quicktile;
 
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
-import android.os.RemoteException;
+import android.os.Handler;
 import android.os.PowerManager;
+import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
-import android.preference.MultiSelectListPreference;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+
+import com.android.server.PowerManagerService;
 
 import com.android.systemui.R;
 import com.android.systemui.statusbar.quicksettings.QuickSettingsController;
@@ -25,22 +29,23 @@ public class BrightnessTile extends QuickSettingsTile {
      * Minimum and maximum brightnesses. Don't go to 0 since that makes the
      * display unusable
      */
-    private static final int MIN_BACKLIGHT = PowerManager.BRIGHTNESS_DIM + 8;
+    private static final int MIN_BACKLIGHT = PowerManager.BRIGHTNESS_DIM + 10;
     private static final int MAX_BACKLIGHT = PowerManager.BRIGHTNESS_ON;
 
     // Auto-backlight level
     private static final int AUTO_BACKLIGHT = -1;
     // Mid-range brightness values + thresholds
-    private static final int LOW_BACKLIGHT = (int) (MAX_BACKLIGHT * 0.3f);
-    private static final int LOWMID_BACKLIGHT = (int) (MAX_BACKLIGHT * 0.4f);
+    private static final int LOW_BACKLIGHT = (int) (MAX_BACKLIGHT * 0.25f);
     private static final int MID_BACKLIGHT = (int) (MAX_BACKLIGHT * 0.5f);
     private static final int HIGH_BACKLIGHT = (int) (MAX_BACKLIGHT * 0.75f);
 
     // Defaults for now. MIN_BACKLIGHT will be replaced later
     private static final int[] BACKLIGHTS = new int[] {
-            AUTO_BACKLIGHT, MIN_BACKLIGHT, LOW_BACKLIGHT, LOWMID_BACKLIGHT, MID_BACKLIGHT, HIGH_BACKLIGHT,
+            AUTO_BACKLIGHT, MIN_BACKLIGHT, LOW_BACKLIGHT, MID_BACKLIGHT, HIGH_BACKLIGHT,
             MAX_BACKLIGHT
     };
+
+    private static final String SEPARATOR = "OV=I=XseparatorX=I=VO";
 
     private boolean mAutoBrightnessSupported = false;
     private boolean mAutoBrightness = false;
@@ -48,8 +53,10 @@ public class BrightnessTile extends QuickSettingsTile {
     private int mCurrentBacklightIndex = 0;
 
     private int[] mBacklightValues = new int[] {
-            0, 1, 2, 3, 4, 5, 6
+            0, 1, 2, 3, 4, 5
     };
+
+    private Handler mHandler;
 
     public BrightnessTile(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, final QuickSettingsController qsc) {
@@ -57,7 +64,8 @@ public class BrightnessTile extends QuickSettingsTile {
 
         mAutoBrightnessSupported = context.getResources().getBoolean(
                     com.android.internal.R.bool.config_automatic_brightness_available);
-        updateSettings(context.getContentResolver());
+        mHandler = new Handler();
+        updateSettings(mContext.getContentResolver());
         updateState();
 
         mOnClick = new OnClickListener() {
@@ -138,8 +146,16 @@ public class BrightnessTile extends QuickSettingsTile {
 
     @Override
     public void onChangeUri(ContentResolver resolver, Uri uri) {
-            updateSettings(resolver);
+            updateSettings(mContext.getContentResolver());
             applyBrightChanges();
+    }
+
+    public String[] parseStoredValue(CharSequence val) {
+        if (TextUtils.isEmpty(val)) {
+            return null;
+        } else {
+            return val.toString().split(SEPARATOR);
+        }
     }
 
     private void updateSettings(ContentResolver resolver) {
@@ -152,14 +168,11 @@ public class BrightnessTile extends QuickSettingsTile {
             BACKLIGHTS[1] = MIN_BACKLIGHT;
         }
 
-// Need find why not works
-//        String[] modes = MultiSelectListPreference.parseStoredValue(Settings.System.getString(
-//                resolver, Settings.System.EXPANDED_BRIGHTNESS_MODE));
-//        if (modes == null || modes.length == 0) {
-        String modes[] = null;
-        if (modes == null) {
+        String[] modes = parseStoredValue(Settings.System.getString(
+                resolver, Settings.System.EXPANDED_BRIGHTNESS_MODE));
+        if (modes == null || modes.length == 0) {
             mBacklightValues = new int[] {
-                    0, 1, 2, 3, 4, 5, 6
+                    0, 1, 2, 3, 4, 5
             };
         } else {
             mBacklightValues = new int[modes.length];
