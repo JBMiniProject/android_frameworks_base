@@ -1,6 +1,7 @@
 package com.android.systemui.statusbar.quicksettings.quicktile;
 
 import com.android.internal.statusbar.IStatusBarService;
+import android.app.ActivityManagerNative;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -88,6 +89,12 @@ public class QuickSettingsTile implements OnClickListener {
     }
 
     void startSettingsActivity(Intent intent) {
+        if (onlyProvisioned && !mStatusbarService.isDeviceProvisioned()) return;
+        try {
+            // Dismiss the lock screen when Settings starts.
+            ActivityManagerNative.getDefault().dismissKeyguardOnNextActivity();
+        } catch (RemoteException e) {
+        }
         updateHapticFeedbackSetting();
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         mContext.startActivity(intent);

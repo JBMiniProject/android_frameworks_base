@@ -72,40 +72,40 @@ public class QuickSettingsController {
      * com.android.settings.cyanogenmod.QuickSettingsUtil IN THE
      * Settings PACKAGE.
      */
+    public static final String TILE_USER = "toggleUser";
     public static final String TILE_BATTERY = "toggleBattery";
+    public static final String TILE_SETTING = "toggleSettings";
     public static final String TILE_WIFI = "toggleWifi";
     public static final String TILE_GPS = "toggleGPS";
     public static final String TILE_BLUETOOTH = "toggleBluetooth";
     public static final String TILE_BRIGHTNESS = "toggleBrightness";
     public static final String TILE_RINGER = "toggleSound";
     public static final String TILE_SYNC = "toggleSync";
-    public static final String TILE_SLEEP = "toggleSleep";
-    public static final String TILE_SCREENTIME = "toggleScreentime";
-    public static final String TILE_SETTING = "toggleSettings";
-    public static final String TILE_TIME = "toggleTime";
     public static final String TILE_WIFIAP = "toggleWifiAp";
+    public static final String TILE_SCREENTIME = "toggleScreentime";
     public static final String TILE_MOBILEDATA = "toggleMobileData";
+    public static final String TILE_LOCKSCREEN = "toggleLockscreen";
     public static final String TILE_NETWORKMODE = "toggleNetworkMode";
     public static final String TILE_AUTOROTATE = "toggleAutoRotate";
     public static final String TILE_AIRPLANE = "toggleAirplane";
     public static final String TILE_TORCH = "toggleFlashlight";  // Keep old string for compatibility
-    public static final String TILE_LOCKSCREEN = "toggleLockscreen";
-    public static final String TILE_USER = "toggleUser";
+    public static final String TILE_SLEEP = "toggleSleep";
+    public static final String TILE_TIME = "toggleTime";
 
     private static final String TILE_DELIMITER = "|";
     private static final String TILES_DEFAULT = TILE_USER
-            + TILE_DELIMITER + TILE_WIFI
-            + TILE_DELIMITER + TILE_BATTERY
-            + TILE_DELIMITER + TILE_MOBILEDATA
-            + TILE_DELIMITER + TILE_TIME
-            + TILE_DELIMITER + TILE_NETWORKMODE
-            + TILE_DELIMITER + TILE_SETTING
-            + TILE_DELIMITER + TILE_BLUETOOTH
             + TILE_DELIMITER + TILE_BRIGHTNESS
+            + TILE_DELIMITER + TILE_SETTING
+            + TILE_DELIMITER + TILE_WIFI
+            + TILE_DELIMITER + TILE_MOBILEDATA
+            + TILE_DELIMITER + TILE_BATTERY
+            + TILE_DELIMITER + TILE_AIRPLANE
+            + TILE_DELIMITER + TILE_BLUETOOTH
+            + TILE_DELIMITER + TILE_TIME //from this will delete the tiles from default
+            + TILE_DELIMITER + TILE_NETWORKMODE
             + TILE_DELIMITER + TILE_GPS
             + TILE_DELIMITER + TILE_SYNC
             + TILE_DELIMITER + TILE_RINGER
-            + TILE_DELIMITER + TILE_AIRPLANE
             + TILE_DELIMITER + TILE_AUTOROTATE
             + TILE_DELIMITER + TILE_SCREENTIME
             + TILE_DELIMITER + TILE_SLEEP
@@ -125,25 +125,23 @@ public class QuickSettingsController {
 
     // Constants for use in switch statement
     public static final int WIFI_TILE = 0;
-    public static final int SETTINGS_TILE = 1;
-    public static final int TIME_TILE = 2;
-    public static final int MOBILE_NETWORK_TILE = 3;
-    public static final int AIRPLANE_MODE_TILE = 4;
-    public static final int BLUETOOTH_TILE = 5;
-    public static final int RINGER_TILE = 6;
+    public static final int MOBILE_NETWORK_TILE = 1;
+    public static final int AIRPLANE_MODE_TILE = 2;
+    public static final int BLUETOOTH_TILE = 3;
+    public static final int RINGER_TILE = 4;
+    public static final int SLEEP_TILE = 5;
+    public static final int LOCKSCREEN_TILE = 6;
     public static final int GPS_TILE = 7;
     public static final int AUTO_ROTATION_TILE = 8;
     public static final int BRIGHTNESS_TILE = 9;
     public static final int MOBILE_NETWORK_TYPE_TILE = 10;
-    public static final int BATTERY_TILE = 11;
-    public static final int WIFI_DISPLAY_TILE = 12;
-    public static final int TORCH_TILE = 13;
-    public static final int WIFIAP_TILE = 14;
-    public static final int SYNC_TILE = 15;
-    public static final int SCREENTIME_TILE = 16;
-    public static final int LOCKSCREEN_TILE = 17;
-    public static final int SLEEP_TILE = 18;
-
+    public static final int SETTINGS_TILE = 11;
+    public static final int BATTERY_TILE = 12;
+    public static final int TIME_TILE = 13;
+    public static final int TORCH_TILE = 14;
+    public static final int WIFIAP_TILE = 15;
+    public static final int SYNC_TILE = 16;
+    public static final int SCREENTIME_TILE = 17;
     public static final int USER_TILE = 99;
 
     public QuickSettingsController(Context context, QuickSettingsContainerView container) {
@@ -156,7 +154,6 @@ public class QuickSettingsController {
     void loadTiles() {
         // Read the stored list of tiles
         ContentResolver resolver = mContext.getContentResolver();
-
         String tiles = Settings.System.getString(resolver, Settings.System.QUICK_SETTINGS_TILES);
         if (tiles == null) {
             Log.i(TAG, "Default tiles being loaded");
@@ -170,16 +167,16 @@ public class QuickSettingsController {
 
         // Split out the tile names and add to the list
         for (String tile : tiles.split("\\|")) {
-            if (tile.equals(TILE_BATTERY)) {
+            if (tile.equals(TILE_USER)) {
+                mQuickSettings.add(USER_TILE);
+            } else if (tile.equals(TILE_BATTERY)) {
                 mQuickSettings.add(BATTERY_TILE);
+            } else if (tile.equals(TILE_SETTING)) {
+                mQuickSettings.add(SETTINGS_TILE);
             } else if (tile.equals(TILE_WIFI)) {
                 mQuickSettings.add(WIFI_TILE);
             } else if (tile.equals(TILE_GPS)) {
                 mQuickSettings.add(GPS_TILE);
-            } else if (tile.equals(TILE_SETTING)) {
-                mQuickSettings.add(SETTINGS_TILE);
-            } else if (tile.equals(TILE_TIME)) {
-                mQuickSettings.add(TIME_TILE);
             } else if (tile.equals(TILE_BLUETOOTH)) {
                 if(deviceSupportsBluetooth()) {
                     mQuickSettings.add(BLUETOOTH_TILE);
@@ -194,10 +191,14 @@ public class QuickSettingsController {
                 if(deviceSupportsTelephony()) {
                     mQuickSettings.add(WIFIAP_TILE);
                 }
+            } else if (tile.equals(TILE_SCREENTIME)) {
+                mQuickSettings.add(SCREENTIME_TILE);
             } else if (tile.equals(TILE_MOBILEDATA)) {
                 if(deviceSupportsTelephony()) {
                     mQuickSettings.add(MOBILE_NETWORK_TILE);
                 }
+            } else if (tile.equals(TILE_LOCKSCREEN)) {
+                mQuickSettings.add(LOCKSCREEN_TILE);
             } else if (tile.equals(TILE_NETWORKMODE)) {
                 if(deviceSupportsTelephony()) {
                     mQuickSettings.add(MOBILE_NETWORK_TYPE_TILE);
@@ -208,14 +209,10 @@ public class QuickSettingsController {
                 mQuickSettings.add(AIRPLANE_MODE_TILE);
             } else if (tile.equals(TILE_TORCH)) {
                 mQuickSettings.add(TORCH_TILE);
-            } else if (tile.equals(TILE_SCREENTIME)) {
-                mQuickSettings.add(SCREENTIME_TILE);
-            } else if (tile.equals(TILE_LOCKSCREEN)) {
-                mQuickSettings.add(LOCKSCREEN_TILE);
             } else if (tile.equals(TILE_SLEEP)) {
                 mQuickSettings.add(SLEEP_TILE);
-            } else if (tile.equals(TILE_USER)) {
-                mQuickSettings.add(USER_TILE);
+            } else if (tile.equals(TILE_TIME)) {
+                mQuickSettings.add(TIME_TILE);
             }
         }
     }
@@ -309,6 +306,10 @@ public class QuickSettingsController {
         return (BluetoothAdapter.getDefaultAdapter() != null);
     }
 
+    boolean systemProfilesEnabled(ContentResolver resolver) {
+        return (Settings.System.getInt(resolver, Settings.System.SYSTEM_PROFILES_ENABLED, 1) == 1);
+    }
+
     void addQuickSettings(LayoutInflater inflater){
         // Load the user configured tiles
         loadTiles();
@@ -332,6 +333,12 @@ public class QuickSettingsController {
             case RINGER_TILE:
                 qs = new RingerModeTile(mContext, inflater, mContainerView, this);
                 break;
+            case SLEEP_TILE:
+                qs = new SleepTile(mContext, inflater, mContainerView, this);
+                break;
+            case LOCKSCREEN_TILE:
+                qs = new LockscreenTile(mContext, inflater, mContainerView, this);
+                break;
             case GPS_TILE:
                 qs = new GPSTile(mContext, inflater, mContainerView, this);
                 break;
@@ -344,8 +351,14 @@ public class QuickSettingsController {
             case MOBILE_NETWORK_TYPE_TILE:
                 qs = new MobileNetworkTypeTile(mContext, inflater, mContainerView, this);
                 break;
+            case SETTINGS_TILE:
+                qs = new SettingsTile(mContext, inflater, mContainerView, this);
+                break;
             case BATTERY_TILE:
                 qs = new BatteryTile(mContext, inflater, mContainerView, this);
+                break;
+            case USER_TILE:
+                qs = new UserTile(mContext, inflater, mContainerView, this);
                 break;
             case TORCH_TILE:
                 qs = new TorchTile(mContext, inflater, mContainerView, this, mHandler);
@@ -356,23 +369,11 @@ public class QuickSettingsController {
             case SYNC_TILE:
                 qs = new SyncTile(mContext, inflater, mContainerView, this);
                 break;
-            case SETTINGS_TILE:
-                qs = new SettingsTile(mContext, inflater, mContainerView, this);
-                break;
             case TIME_TILE:
                 qs = new TimeTile(mContext, inflater, mContainerView, this);
                 break;
             case SCREENTIME_TILE:
                 qs = new SleepTimeTile(mContext, inflater, mContainerView, this);
-                break;
-            case LOCKSCREEN_TILE:
-                qs = new LockscreenTile(mContext, inflater, mContainerView, this);
-                break;
-            case SLEEP_TILE:
-                qs = new SleepTile(mContext, inflater, mContainerView, this);
-                break;
-            case USER_TILE:
-                qs = new UserTile(mContext, inflater, mContainerView, this);
                 break;
             }
             if (qs != null) {
