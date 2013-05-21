@@ -607,7 +607,9 @@ public class PhoneStatusBar extends BaseStatusBar {
                 @Override
                 public void onLayoutChange(View v, int left, int top, int right, int bottom,
                         int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                    updateCarrierAndWifiLabelVisibility(false);
+                    if (NotifEnable) {
+                        updateCarrierAndWifiLabelVisibility(false);
+                    }
                 }});
         }
 
@@ -661,7 +663,9 @@ public class PhoneStatusBar extends BaseStatusBar {
         mPile.setOnSizeChangedListener(new OnSizeChangedListener() {
             @Override
             public void onSizeChanged(View view, int w, int h, int oldw, int oldh) {
-                updateCarrierAndWifiLabelVisibility(false);
+                if (NotifEnable) {
+                    updateCarrierAndWifiLabelVisibility(false);
+                }
             }
         });
 
@@ -1238,8 +1242,9 @@ public class PhoneStatusBar extends BaseStatusBar {
                 })
                 .start();
         }
-
-        updateCarrierAndWifiLabelVisibility(false);
+        if (NotifEnable) {
+            updateCarrierAndWifiLabelVisibility(false);
+        }
     }
 
     public void showClock(boolean show) {
@@ -1418,8 +1423,9 @@ public class PhoneStatusBar extends BaseStatusBar {
         if (mNavigationBarView != null)
             mNavigationBarView.setSlippery(true);
 
-        updateCarrierAndWifiLabelVisibility(true);
-
+        if (NotifEnable) {
+            updateCarrierAndWifiLabelVisibility(true);
+        }
         updateExpandedViewPos(EXPANDED_LEAVE_ALONE);
 
         // Expand the window to encompass the full screen in anticipation of the drag.
@@ -2445,8 +2451,9 @@ public class PhoneStatusBar extends BaseStatusBar {
             final int color = ((int)(0xB0 * k)) << 24;
             mStatusBarWindow.setBackgroundColor(color);
         }
-
-        updateCarrierAndWifiLabelVisibility(false);
+        if (NotifEnable) {
+            updateCarrierAndWifiLabelVisibility(false);
+        }
     }
 
     void updateDisplaySize() {
