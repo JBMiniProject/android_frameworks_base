@@ -95,6 +95,13 @@ class WallpaperManagerService extends IWallpaperManager.Stub {
     static final String WALLPAPER_INFO = "wallpaper_info.xml";
 
     /**
+     * Name of the component used to display bitmap wallpapers from either the gallery or
+     * built-in wallpapers.
+     */
+    static final ComponentName IMAGE_WALLPAPER = new ComponentName("com.android.systemui",
+            "com.android.systemui.ImageWallpaper");
+
+    /**
      * Observes the wallpaper for changes and notifies all IWallpaperServiceCallbacks
      * that the wallpaper has changed. The CREATE is triggered when there is no
      * wallpaper set and is created for the first time. The CLOSE_WRITE is triggered
@@ -239,6 +246,10 @@ class WallpaperManagerService extends IWallpaperManager.Stub {
                 mEngine = null;
                 if (mWallpaper.connection == this) {
                     Slog.w(TAG, "Wallpaper service gone: " + mWallpaper.wallpaperComponent);
+                    if (mWallpaper.wallpaperComponent.equals(IMAGE_WALLPAPER)) {
+                        Slog.w(TAG, "SystemUI wallpaper disconnected, assuming it's being restarted, not clearing wallpaper.");
+                        return;
+                    }
                     if (!mWallpaper.wallpaperUpdating
                             && (mWallpaper.lastDiedTime + MIN_WALLPAPER_CRASH_TIME)
                                 > SystemClock.uptimeMillis()
