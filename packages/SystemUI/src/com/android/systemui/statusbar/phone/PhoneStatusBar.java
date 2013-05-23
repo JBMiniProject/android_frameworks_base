@@ -2625,16 +2625,15 @@ public class PhoneStatusBar extends BaseStatusBar {
 
     public void toggleNotif() {
         mQuickSettingsButton.setImageResource(R.drawable.ic_notify_qs_normal);
-        mCarrierAndWifiView.setVisibility(View.VISIBLE);
-        mCarrierAndWifiView.startAnimation(loadAnim(com.android.internal.R.anim.slide_in_left, null));
-        mPowerWidget.setVisibility(View.VISIBLE);
-        mPowerWidget.startAnimation(loadAnim(com.android.internal.R.anim.slide_in_left, null));
-        mScrollView.setVisibility(View.VISIBLE);
-        mScrollView.startAnimation(loadAnim(com.android.internal.R.anim.slide_in_left, null));
-        mExpandedContents.setVisibility(View.VISIBLE);
-        mExpandedContents.startAnimation(loadAnim(com.android.internal.R.anim.slide_in_left, null));
         mQuickContainer.setVisibility(View.GONE);
         mQuickContainer.startAnimation(loadAnim(com.android.internal.R.anim.slide_out_left, null));
+        mExpandedContents.setVisibility(View.VISIBLE);
+        mExpandedContents.startAnimation(loadAnim(com.android.internal.R.anim.slide_in_left, null));
+        mScrollView.setVisibility(View.VISIBLE);
+        mScrollView.startAnimation(loadAnim(com.android.internal.R.anim.slide_in_left, null));
+        mPowerWidget.updateVisibility();
+        mCarrierAndWifiView.setVisibility(View.VISIBLE);
+        mCarrierAndWifiView.startAnimation(loadAnim(com.android.internal.R.anim.slide_in_left, null));
         NotifEnable = true;
         updateCarrierAndWifiLabelVisibility(true);
     }
@@ -2644,7 +2643,6 @@ public class PhoneStatusBar extends BaseStatusBar {
         mCarrierAndWifiView.setVisibility(View.GONE);
         mCarrierAndWifiView.startAnimation(loadAnim(com.android.internal.R.anim.slide_out_right, null));
         mPowerWidget.setVisibility(View.GONE);
-        mPowerWidget.startAnimation(loadAnim(com.android.internal.R.anim.slide_out_right, null));
         mScrollView.setVisibility(View.GONE);
         mScrollView.startAnimation(loadAnim(com.android.internal.R.anim.slide_out_right, null));
         mExpandedContents.setVisibility(View.GONE);
