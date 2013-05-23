@@ -75,7 +75,7 @@ public class QuickSettingsController {
      */
     public static final String TILE_USER = "toggleUser";
     public static final String TILE_BATTERY = "toggleBattery";
-    public static final String TILE_SETTING = "toggleSettings";
+    public static final String TILE_SETTINGS = "toggleSettings";
     public static final String TILE_WIFI = "toggleWifi";
     public static final String TILE_GPS = "toggleGPS";
     public static final String TILE_BLUETOOTH = "toggleBluetooth";
@@ -97,22 +97,10 @@ public class QuickSettingsController {
     private static final String TILE_DELIMITER = "|";
     private static final String TILES_DEFAULT = TILE_USER
             + TILE_DELIMITER + TILE_BRIGHTNESS
-            + TILE_DELIMITER + TILE_SETTING
+            + TILE_DELIMITER + TILE_SETTINGS
             + TILE_DELIMITER + TILE_WIFI
-            + TILE_DELIMITER + TILE_MOBILEDATA
-            + TILE_DELIMITER + TILE_BATTERY
-            + TILE_DELIMITER + TILE_AIRPLANE
             + TILE_DELIMITER + TILE_BLUETOOTH
-            + TILE_DELIMITER + TILE_TIME //from this will delete the tiles from default
-            + TILE_DELIMITER + TILE_NETWORKMODE
-            + TILE_DELIMITER + TILE_GPS
-            + TILE_DELIMITER + TILE_SYNC
-            + TILE_DELIMITER + TILE_RINGER
-            + TILE_DELIMITER + TILE_AUTOROTATE
-            + TILE_DELIMITER + TILE_SCREENTIME
-            + TILE_DELIMITER + TILE_SLEEP
-            + TILE_DELIMITER + TILE_LOCKSCREEN
-            + TILE_DELIMITER + TILE_WIFIAP;
+            + TILE_DELIMITER + TILE_RINGER;
 
     /**
      * END OF DATA MATCHING BLOCK
@@ -174,7 +162,7 @@ public class QuickSettingsController {
                 mQuickSettings.add(USER_TILE);
             } else if (tile.equals(TILE_BATTERY)) {
                 mQuickSettings.add(BATTERY_TILE);
-            } else if (tile.equals(TILE_SETTING)) {
+            } else if (tile.equals(TILE_SETTINGS)) {
                 mQuickSettings.add(SETTINGS_TILE);
             } else if (tile.equals(TILE_WIFI)) {
                 mQuickSettings.add(WIFI_TILE);
