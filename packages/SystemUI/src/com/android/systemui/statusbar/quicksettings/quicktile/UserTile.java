@@ -17,7 +17,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.systemui.R;
-import com.android.systemui.statusbar.jbmpcustom.SmsHelper;
+import com.android.systemui.statusbar.jbmpcustom.UserHelper;
 import com.android.systemui.statusbar.quicksettings.QuickSettingsContainerView;
 import com.android.systemui.statusbar.quicksettings.QuickSettingsController;
 
@@ -78,8 +78,8 @@ public class UserTile extends QuickSettingsTile {
         String numbers = Settings.System.getString(resolver, Settings.System.USER_MY_NUMBERS);
         Drawable avatar = null;
         if (numbers != null) {
-            String name = SmsHelper.getName(mContext, numbers);
-            Bitmap rawAvatar = SmsHelper.getContactPicture(mContext, numbers);
+            String name = UserHelper.getName(mContext, numbers);
+            Bitmap rawAvatar = UserHelper.getContactPicture(mContext, numbers);
             if (rawAvatar != null) {
                 avatar = new BitmapDrawable(mContext.getResources(), rawAvatar);
             } else {
