@@ -35,6 +35,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.android.systemui.statusbar.quicksettings.quicktile.AirplaneModeTile;
+import com.android.systemui.statusbar.quicksettings.quicktile.AlarmTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.AutoRotateTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.BatteryTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.BluetoothTile;
@@ -91,6 +92,7 @@ public class QuickSettingsController {
     public static final String TILE_TORCH = "toggleFlashlight";  // Keep old string for compatibility
     public static final String TILE_SLEEP = "toggleSleep";
     public static final String TILE_TIME = "toggleTime";
+    public static final String TILE_ALARM = "toggleAlarm";
 
     private static final String TILE_DELIMITER = "|";
     private static final String TILES_DEFAULT = TILE_USER
@@ -142,6 +144,7 @@ public class QuickSettingsController {
     public static final int WIFIAP_TILE = 15;
     public static final int SYNC_TILE = 16;
     public static final int SCREENTIME_TILE = 17;
+    public static final int ALARM_TILE = 18;
     public static final int USER_TILE = 99;
 
     public QuickSettingsController(Context context, QuickSettingsContainerView container) {
@@ -213,6 +216,8 @@ public class QuickSettingsController {
                 mQuickSettings.add(SLEEP_TILE);
             } else if (tile.equals(TILE_TIME)) {
                 mQuickSettings.add(TIME_TILE);
+            } else if (tile.equals(TILE_ALARM)) {
+                mQuickSettings.add(ALARM_TILE);
             }
         }
     }
@@ -374,6 +379,9 @@ public class QuickSettingsController {
                 break;
             case SCREENTIME_TILE:
                 qs = new SleepTimeTile(mContext, inflater, mContainerView, this);
+                break;
+            case ALARM_TILE:
+                qs = new AlarmTile(mContext, inflater, mContainerView, this);
                 break;
             }
             if (qs != null) {
