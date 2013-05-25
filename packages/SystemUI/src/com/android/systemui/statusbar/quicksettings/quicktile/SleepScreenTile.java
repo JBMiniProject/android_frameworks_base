@@ -16,12 +16,12 @@ import com.android.systemui.R;
 import com.android.systemui.statusbar.quicksettings.QuickSettingsController;
 import com.android.systemui.statusbar.quicksettings.QuickSettingsContainerView;
 
-public class SleepTile extends QuickSettingsTile {
+public class SleepScreenTile extends QuickSettingsTile {
 
     private static final String TAG = "ScreenShotButton";
     Context mContext;
 
-    public SleepTile(Context context, LayoutInflater inflater,
+    public SleepScreenTile(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, QuickSettingsController qsc) {
         super(context, inflater, container, qsc);
 

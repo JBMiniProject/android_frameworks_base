@@ -89,11 +89,6 @@ public class QuickSettingsTile implements OnClickListener {
     }
 
     void startSettingsActivity(Intent intent) {
-        startSettingsActivity(intent, true);
-    }
-
-    void startSettingsActivity(Intent intent, boolean onlyProvisioned) {
-        if (onlyProvisioned) return;
         try {
             // Dismiss the lock screen when Settings starts.
             ActivityManagerNative.getDefault().dismissKeyguardOnNextActivity();

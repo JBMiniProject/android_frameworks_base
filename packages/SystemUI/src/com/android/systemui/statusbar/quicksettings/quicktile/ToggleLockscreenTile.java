@@ -17,7 +17,8 @@ import com.android.systemui.R;
 import com.android.systemui.statusbar.quicksettings.QuickSettingsController;
 import com.android.systemui.statusbar.quicksettings.QuickSettingsContainerView;
 
-public class LockscreenTile extends QuickSettingsTile {
+@SuppressWarnings("deprecation")
+public class ToggleLockscreenTile extends QuickSettingsTile {
     private static final String KEY_DISABLED = "lockscreen_disabled";
 
     private KeyguardLock mLock = null;
@@ -26,7 +27,7 @@ public class LockscreenTile extends QuickSettingsTile {
     private static final String TAG = "LockButton";
     Context mContext;
 
-    public LockscreenTile(Context context, LayoutInflater inflater,
+    public ToggleLockscreenTile(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, QuickSettingsController qsc) {
         super(context, inflater, container, qsc);
 

@@ -655,6 +655,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         });
 
         mQuickContainer = (QuickSettingsContainerView)mStatusBarWindow.findViewById(R.id.quick_settings_container);
+        mQuickContainer.setVisibility(View.GONE);
         if (mQuickContainer != null) {
             mQS = new QuickSettingsController(context, mQuickContainer);
 

@@ -8,9 +8,9 @@ import com.android.systemui.R;
 import com.android.systemui.statusbar.quicksettings.QuickSettingsContainerView;
 import com.android.systemui.statusbar.quicksettings.QuickSettingsController;
 
-public class SettingsTile extends QuickSettingsTile {
+public class PreferencesTile extends QuickSettingsTile {
 
-    public SettingsTile(Context context, LayoutInflater inflater,
+    public PreferencesTile(Context context, LayoutInflater inflater,
             QuickSettingsContainerView container, QuickSettingsController qsc) {
         super(context, inflater, container, qsc);
 
