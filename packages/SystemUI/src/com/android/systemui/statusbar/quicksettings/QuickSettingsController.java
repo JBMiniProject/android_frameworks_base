@@ -27,12 +27,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
+import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.nfc.NfcAdapter;
 import android.os.Handler;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.ViewGroup;
 
 import com.android.systemui.statusbar.quicksettings.quicktile.AirplaneModeTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.AlarmTile;
@@ -40,18 +42,26 @@ import com.android.systemui.statusbar.quicksettings.quicktile.AutoRotateTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.BatteryTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.BluetoothTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.BrightnessTile;
+import com.android.systemui.statusbar.quicksettings.quicktile.NfcTile;
+import com.android.systemui.statusbar.quicksettings.quicktile.QuietHoursTile;
+import com.android.systemui.statusbar.quicksettings.quicktile.ScreenTimeoutTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.TorchTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.GPSTile;
+import com.android.systemui.statusbar.quicksettings.quicktile.InputMethodTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.MobileNetworkTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.MobileNetworkTypeTile;
+//import com.android.systemui.quicksettings.PreferencesTile;
+import com.android.systemui.statusbar.quicksettings.quicktile.ProfileTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.QuickSettingsTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.RingerModeTile;
+//import com.android.systemui.quicksettings.SleepScreenTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.SyncTile;
+//import com.android.systemui.quicksettings.ToggleLockscreenTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.SleepTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.LockscreenTile;
-import com.android.systemui.statusbar.quicksettings.quicktile.SleepTimeTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.SettingsTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.TimeTile;
+import com.android.systemui.statusbar.quicksettings.quicktile.UsbTetherTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.UserTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.WiFiTile;
 import com.android.systemui.statusbar.quicksettings.quicktile.WifiAPTile;
@@ -83,7 +93,7 @@ public class QuickSettingsController {
     public static final String TILE_RINGER = "toggleSound";
     public static final String TILE_SYNC = "toggleSync";
     public static final String TILE_WIFIAP = "toggleWifiAp";
-    public static final String TILE_SCREENTIME = "toggleScreentime";
+    public static final String TILE_SCREENTIMEOUT = "toggleScreenTimeout";
     public static final String TILE_MOBILEDATA = "toggleMobileData";
     public static final String TILE_LOCKSCREEN = "toggleLockscreen";
     public static final String TILE_NETWORKMODE = "toggleNetworkMode";
@@ -93,15 +103,24 @@ public class QuickSettingsController {
     public static final String TILE_SLEEP = "toggleSleep";
     public static final String TILE_TIME = "toggleTime";
     public static final String TILE_ALARM = "toggleAlarm";
+    public static final String TILE_PROFILE = "toggleProfile";
+    public static final String TILE_NFC = "toggleNfc";
+    public static final String TILE_USBTETHER = "toggleUsbTether";
+    public static final String TILE_QUIETHOURS = "toggleQuietHours";
 
     private static final String TILE_DELIMITER = "|";
-    private static final String TILES_DEFAULT = TILE_USER
-            + TILE_DELIMITER + TILE_BRIGHTNESS
-            + TILE_DELIMITER + TILE_SETTINGS
-            + TILE_DELIMITER + TILE_WIFI
-            + TILE_DELIMITER + TILE_BLUETOOTH
-            + TILE_DELIMITER + TILE_RINGER;
+    private static ArrayList<String> TILES_DEFAULT = new ArrayList<String>();
 
+    static {
+        TILES_DEFAULT.add(TILE_USER);
+        TILES_DEFAULT.add(TILE_BRIGHTNESS);
+        TILES_DEFAULT.add(TILE_SETTINGS);
+        TILES_DEFAULT.add(TILE_WIFI);
+        TILES_DEFAULT.add(TILE_MOBILEDATA);
+        TILES_DEFAULT.add(TILE_BATTERY);
+        TILES_DEFAULT.add(TILE_AIRPLANE);
+        TILES_DEFAULT.add(TILE_BLUETOOTH);
+    }
     /**
      * END OF DATA MATCHING BLOCK
      */
@@ -127,13 +146,20 @@ public class QuickSettingsController {
     public static final int MOBILE_NETWORK_TYPE_TILE = 10;
     public static final int SETTINGS_TILE = 11;
     public static final int BATTERY_TILE = 12;
-    public static final int TIME_TILE = 13;
-    public static final int TORCH_TILE = 14;
-    public static final int WIFIAP_TILE = 15;
-    public static final int SYNC_TILE = 16;
-    public static final int SCREENTIME_TILE = 17;
-    public static final int ALARM_TILE = 18;
+    public static final int IME_TILE = 13;
+    public static final int BUG_REPORT_TILE = 14;
+    public static final int TIME_TILE = 15;
+    public static final int TORCH_TILE = 16;
+    public static final int WIFIAP_TILE = 17;
+    public static final int SYNC_TILE = 18;
+    public static final int SCREENTIMEOUT_TILE = 19;
+    public static final int ALARM_TILE = 20;
+    public static final int PROFILE_TILE = 21;
+    public static final int NFC_TILE = 22;
+    public static final int USBTETHER_TILE = 23;
+    public static final int QUIET_HOURS_TILE = 24;
     public static final int USER_TILE = 99;
+    private InputMethodTile IMETile;
 
     public QuickSettingsController(Context context, QuickSettingsContainerView container) {
         mContext = context;
@@ -143,12 +169,25 @@ public class QuickSettingsController {
     }
 
     void loadTiles() {
+        // Filter items not compatible with device
+        boolean bluetoothSupported = deviceSupportsBluetooth();
+        boolean telephonySupported = deviceSupportsTelephony();
+
+        if (!bluetoothSupported) {
+            TILES_DEFAULT.remove(TILE_BLUETOOTH);
+        }
+        if (!telephonySupported) {
+            TILES_DEFAULT.remove(TILE_WIFIAP);
+            TILES_DEFAULT.remove(TILE_MOBILEDATA);
+            TILES_DEFAULT.remove(TILE_NETWORKMODE);
+        }
+
         // Read the stored list of tiles
         ContentResolver resolver = mContext.getContentResolver();
         String tiles = Settings.System.getString(resolver, Settings.System.QUICK_SETTINGS_TILES);
         if (tiles == null) {
             Log.i(TAG, "Default tiles being loaded");
-            tiles = TILES_DEFAULT;
+            tiles = TextUtils.join(TILE_DELIMITER, TILES_DEFAULT);
         }
 
         Log.i(TAG, "Tiles list: " + tiles);
@@ -169,7 +208,7 @@ public class QuickSettingsController {
             } else if (tile.equals(TILE_GPS)) {
                 mQuickSettings.add(GPS_TILE);
             } else if (tile.equals(TILE_BLUETOOTH)) {
-                if(deviceSupportsBluetooth()) {
+                if(bluetoothSupported) {
                     mQuickSettings.add(BLUETOOTH_TILE);
                 }
             } else if (tile.equals(TILE_BRIGHTNESS)) {
@@ -179,19 +218,19 @@ public class QuickSettingsController {
             } else if (tile.equals(TILE_SYNC)) {
                 mQuickSettings.add(SYNC_TILE);
             } else if (tile.equals(TILE_WIFIAP)) {
-                if(deviceSupportsTelephony()) {
+                if(telephonySupported) {
                     mQuickSettings.add(WIFIAP_TILE);
                 }
-            } else if (tile.equals(TILE_SCREENTIME)) {
-                mQuickSettings.add(SCREENTIME_TILE);
+            } else if (tile.equals(TILE_SCREENTIMEOUT)) {
+                mQuickSettings.add(SCREENTIMEOUT_TILE);
             } else if (tile.equals(TILE_MOBILEDATA)) {
-                if(deviceSupportsTelephony()) {
+                if(telephonySupported) {
                     mQuickSettings.add(MOBILE_NETWORK_TILE);
                 }
             } else if (tile.equals(TILE_LOCKSCREEN)) {
                 mQuickSettings.add(LOCKSCREEN_TILE);
             } else if (tile.equals(TILE_NETWORKMODE)) {
-                if(deviceSupportsTelephony()) {
+                if(telephonySupported) {
                     mQuickSettings.add(MOBILE_NETWORK_TYPE_TILE);
                 }
             } else if (tile.equals(TILE_AUTOROTATE)) {
@@ -202,15 +241,36 @@ public class QuickSettingsController {
                 mQuickSettings.add(TORCH_TILE);
             } else if (tile.equals(TILE_SLEEP)) {
                 mQuickSettings.add(SLEEP_TILE);
+            } else if (tile.equals(TILE_PROFILE)) {
+                if (systemProfilesEnabled(resolver)) {
+                    mQuickSettings.add(PROFILE_TILE);
+                }
+            } else if (tile.equals(TILE_NFC)) {
+                // User cannot add the NFC tile if the device does not support it
+                // No need to check again here
+                mQuickSettings.add(NFC_TILE);
             } else if (tile.equals(TILE_TIME)) {
                 mQuickSettings.add(TIME_TILE);
-            } else if (tile.equals(TILE_ALARM)) {
-                mQuickSettings.add(ALARM_TILE);
+            } else if (tile.equals(TILE_QUIETHOURS)) {
+                mQuickSettings.add(QUIET_HOURS_TILE);
             }
+        }
+
+        // Load the dynamic tiles
+        // These toggles must be the last ones added to the view, as they will show
+        // only when they are needed
+        if (Settings.System.getInt(resolver, Settings.System.QS_DYNAMIC_ALARM, 1) == 1) {
+            mQuickSettings.add(ALARM_TILE);
+        }
+        if (Settings.System.getInt(resolver, Settings.System.QS_DYNAMIC_IME, 1) == 1) {
+            mQuickSettings.add(IME_TILE);
+        }
+        if (deviceSupportsUsbTether() && Settings.System.getInt(resolver, Settings.System.QS_DYNAMIC_USBTETHER, 1) == 1) {
+            mQuickSettings.add(USBTETHER_TILE);
         }
     }
 
-    public void setupQuickSettings() {
+    private void setupQuickSettings() {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         // Clear out old receiver
         if (mReceiver != null) {
@@ -299,6 +359,11 @@ public class QuickSettingsController {
         return (BluetoothAdapter.getDefaultAdapter() != null);
     }
 
+    boolean deviceSupportsUsbTether() {
+        ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        return (cm.getTetherableUsbRegexs().length != 0);
+    }
+
     boolean systemProfilesEnabled(ContentResolver resolver) {
         return (Settings.System.getInt(resolver, Settings.System.SYSTEM_PROFILES_ENABLED, 1) == 1);
     }
@@ -365,16 +430,38 @@ public class QuickSettingsController {
             case TIME_TILE:
                 qs = new TimeTile(mContext, inflater, mContainerView, this);
                 break;
-            case SCREENTIME_TILE:
-                qs = new SleepTimeTile(mContext, inflater, mContainerView, this);
+            case SCREENTIMEOUT_TILE:
+                qs = new ScreenTimeoutTile(mContext, inflater, mContainerView, this);
                 break;
             case ALARM_TILE:
                 qs = new AlarmTile(mContext, inflater, mContainerView, this);
+                break;
+            case IME_TILE:
+                IMETile = new InputMethodTile(mContext, inflater, mContainerView, this);
+                qs = IMETile;
+                break;
+            case PROFILE_TILE:
+                qs = new ProfileTile(mContext, inflater, mContainerView, this);
+                break;
+            case NFC_TILE:
+                qs = new NfcTile(mContext, inflater, mContainerView, this);
+                break;
+            case USBTETHER_TILE:
+                qs = new UsbTetherTile(mContext, inflater, mContainerView, this);
+                break;
+            case QUIET_HOURS_TILE:
+                qs = new QuietHoursTile(mContext, inflater, mContainerView, this);
                 break;
             }
             if (qs != null) {
                 qs.setupQuickSettingsTile();
             }
+        }
+    }
+
+    public void setImeWindowStatus(boolean visible) {
+        if (IMETile != null) {
+            IMETile.toggleVisibility(visible);
         }
     }
 

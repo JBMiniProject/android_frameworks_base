@@ -89,6 +89,11 @@ public class QuickSettingsTile implements OnClickListener {
     }
 
     void startSettingsActivity(Intent intent) {
+        startSettingsActivity(intent, true);
+    }
+
+    void startSettingsActivity(Intent intent, boolean onlyProvisioned) {
+        if (onlyProvisioned) return;
         try {
             // Dismiss the lock screen when Settings starts.
             ActivityManagerNative.getDefault().dismissKeyguardOnNextActivity();
@@ -157,6 +162,11 @@ public class QuickSettingsTile implements OnClickListener {
     public final void onClick(View v) {
         updateHapticFeedbackSetting();
         mOnClick.onClick(v);
+        ContentResolver resolver = mContext.getContentResolver();
+        boolean shouldCollapse = Settings.System.getInt(resolver, Settings.System.QS_COLLAPSE_PANEL, 0) == 1;
+        if (shouldCollapse) {
+            startCollapseActivity();
+        }
         provideHapticFeedback(mClickPattern);
     }
 

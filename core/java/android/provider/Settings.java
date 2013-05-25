@@ -2689,11 +2689,46 @@ public final class Settings {
         public static final String EXPANDED_HAPTIC_FEEDBACK = "expanded_haptic_feedback";
 
         /**
-         * Tile View to Use
+         * Quick Settings Panel Tiles to Use
          *
          * @hide
          */
         public static final String QUICK_SETTINGS_TILES = "quick_settings_tiles";
+
+        /**
+         * Quick Settings Panel Dynamic Tiles
+         *
+         * @hide
+         */
+        public static final String QS_DYNAMIC_ALARM = "qs_dyanmic_alarm";
+
+        /**
+         * Quick Settings Panel Dynamic Tiles
+         *
+         * @hide
+         */
+        public static final String QS_DYNAMIC_IME = "qs_dyanmic_ime";
+
+        /**
+         * Quick Settings Panel Dynamic Tiles
+         *
+         * @hide
+         */
+        public static final String QS_DYNAMIC_USBTETHER = "qs_dyanmic_usbtether";
+
+        /**
+        * Quick Settings Quick Pulldown
+        *
+        * @hide
+        */
+        public static final String QS_QUICK_PULLDOWN = "qs_quick_pulldown";
+
+        /**
+        * Quick Settings Collapse Panel
+        *
+        * @hide
+        */
+        public static final String QS_COLLAPSE_PANEL = "qs_collapse_panel";
 
         /**
          * User Tile

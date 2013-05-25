@@ -205,6 +205,8 @@ public class PhoneStatusBar extends BaseStatusBar {
     int mNotificationPanelMinHeight;
     boolean mNotificationPanelIsFullScreenWidth;
 
+    private TilesChangedObserver mTilesChangedObserver;
+
     // top bar
     View mButtonsBar;
     View mClearButton;
@@ -653,10 +655,12 @@ public class PhoneStatusBar extends BaseStatusBar {
         });
 
         mQuickContainer = (QuickSettingsContainerView)mStatusBarWindow.findViewById(R.id.quick_settings_container);
-        mQuickContainer.setVisibility(View.GONE);
-
         if (mQuickContainer != null) {
             mQS = new QuickSettingsController(context, mQuickContainer);
+
+            // Start observing for changes
+            mTilesChangedObserver = new TilesChangedObserver(mHandler);
+            mTilesChangedObserver.startObserving();
         }
 
         // set up the dynamic hide/show of the labels
@@ -686,7 +690,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         context.registerReceiver(mBroadcastReceiver, filter);
 
         mPowerWidget.setupWidget();
-        mQS.setupQuickSettings();
+        mQS.updateResources();
         mVelocityTracker = VelocityTracker.obtain();
 
         return mStatusBarView;
@@ -2968,6 +2972,43 @@ public class PhoneStatusBar extends BaseStatusBar {
         }
     }
 
+    /**
+     * ContentObserver to watch for Quick Settings tiles changes
+     * @author dvtonder
+     *
+     */
+    private class TilesChangedObserver extends ContentObserver {
+        public TilesChangedObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            if (mQuickContainer != null) {
+                mQS.updateResources();
+            }
+        }
+
+        public void startObserving() {
+            final ContentResolver cr = mContext.getContentResolver();
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QUICK_SETTINGS_TILES),
+                    false, this);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QS_DYNAMIC_ALARM),
+                    false, this);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QS_DYNAMIC_IME),
+                    false, this);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QS_DYNAMIC_USBTETHER),
+                    false, this);
+        }
+    }
+
     private class SettingsObserver extends ContentObserver {
         SettingsObserver(Handler handler) {
             super(handler);
@@ -3005,11 +3046,9 @@ public class PhoneStatusBar extends BaseStatusBar {
 
             if (mQuickContainer != null) {
                 if (mQS != null) {
-                    mQuickContainer.removeAllViews();
-                    mQS.setupQuickSettings();
-                    mQuickContainer.requestLayout();
-             }
-        }
+                    mQS.updateResources();
+                }
+            }
         }
     }
 }

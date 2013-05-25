@@ -13,8 +13,10 @@ import com.android.internal.telephony.Phone;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.quicksettings.QuickSettingsContainerView;
 import com.android.systemui.statusbar.quicksettings.QuickSettingsController;
+import com.android.systemui.statusbar.policy.NetworkController;
+import com.android.systemui.statusbar.policy.NetworkController.NetworkSignalChangedCallback;
 
-public class MobileNetworkTypeTile extends QuickSettingsTile {
+public class MobileNetworkTypeTile extends QuickSettingsTile implements NetworkSignalChangedCallback {
 
     private static final String TAG = "NetworkModeQuickSettings";
 
@@ -100,7 +102,6 @@ public class MobileNetworkTypeTile extends QuickSettingsTile {
                 return true;
             }
         };
-
         qsc.registerAction(ACTION_NETWORK_MODE_CHANGED, this);
     }
 
@@ -130,7 +131,7 @@ public class MobileNetworkTypeTile extends QuickSettingsTile {
 
         switch (mState) {
             case STATE_UNEXPECTED:
-                mDrawable = R.drawable.ic_qs_2g_on;
+                mDrawable = R.drawable.ic_qs_unexpected_network;
                 break;
             case STATE_2G_ONLY:
                 mDrawable = R.drawable.ic_qs_2g_on;
@@ -194,5 +195,22 @@ public class MobileNetworkTypeTile extends QuickSettingsTile {
         return Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.EXPANDED_NETWORK_MODE,
                 CM_MODE_3G2G);
+    }
+
+    @Override
+    void onPostCreate() {
+        NetworkController controller = new NetworkController(mContext);
+        controller.addNetworkSignalChangedCallback(this);
+        super.onPostCreate();
+    }
+
+    @Override
+    public void onWifiSignalChanged(boolean enabled, int mWifiSignalIconId, String description) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void onMobileDataSignalChanged(boolean enabled, int mPhoneSignalQSIconId, String description) {
+        applyNetworkTypeChanges();
     }
 }

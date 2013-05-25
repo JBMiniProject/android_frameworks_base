@@ -111,12 +111,6 @@ public class GPSTile extends QuickSettingsTile {
     }
 
     private void setGenericLabel() {
-        // Show OFF next to the GPS label when in OFF state, ON/IN USE is indicated by the color
-        String label = mContext.getString(R.string.quick_settings_gps);
-        if (enabled) {
-            mLabel = ((!mEnabled && working) ? mContext.getString(R.string.quick_settings_gps_search) : (label + " " + mContext.getString(R.string.quick_settings_label_disabled)));
-        } else {
-            mLabel = (label + " " + mContext.getString(R.string.quick_settings_label_disabled));
-        }
+        mLabel = (enabled ? mContext.getString(R.string.quick_settings_gps) : mContext.getString(R.string.quick_settings_gps_off));
     }
 }
