@@ -3,34 +3,27 @@ package com.android.systemui.statusbar.quicksettings.quicktile;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Handler;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 
+import com.android.internal.view.RotationPolicy;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.quicksettings.QuickSettingsController;
 import com.android.systemui.statusbar.quicksettings.QuickSettingsContainerView;
 
 public class AutoRotateTile extends QuickSettingsTile {
 
-    private static final String TAG = "AutoRotateButton";
-    Context mContext;
-
-    public AutoRotateTile(Context context, LayoutInflater inflater,
-            QuickSettingsContainerView container, QuickSettingsController qsc) {
-        super(context, inflater, container, qsc);
-
-        mContext = context;
+    public AutoRotateTile(Context context, QuickSettingsController qsc, Handler handler) {
+        super(context, qsc);
 
         mOnClick = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                     Settings.System.putInt(
-                         mContext.getContentResolver(),
-                             Settings.System.ACCELEROMETER_ROTATION, getAutoRotation() ? 0 : 1);
-                applyAutoRotationChanges();
+                RotationPolicy.setRotationLock(mContext, getAutoRotation());
             }
         };
 
@@ -45,32 +38,34 @@ public class AutoRotateTile extends QuickSettingsTile {
                 , this);
     }
 
-    void applyAutoRotationChanges() {
-        if(getAutoRotation()){
+    @Override
+    public void updateResources() {
+        updateTile();
+        updateQuickSettings();
+    }
+
+    private synchronized void updateTile() {
+        if(!getAutoRotation()){
             mDrawable = R.drawable.ic_qs_rotation_locked;
-            mLabel = mContext.getString(R.string.quick_settings_rotation_unlocked_label);
+            mLabel = mContext.getString(R.string.quick_settings_rotation_locked_label);
         } else {
             mDrawable = R.drawable.ic_qs_auto_rotate;
-            mLabel = mContext.getString(R.string.quick_settings_rotation_locked_label);
+            mLabel = mContext.getString(R.string.quick_settings_rotation_unlocked_label);
         }
-        updateQuickSettings();
     }
 
     @Override
     void onPostCreate() {
-        applyAutoRotationChanges();
+        updateTile();
         super.onPostCreate();
     }
 
     private boolean getAutoRotation() {
-        return (Settings.System.getInt(
-                mContext.getContentResolver(),
-                Settings.System.ACCELEROMETER_ROTATION, 0) == 1);
+        return !RotationPolicy.isRotationLocked(mContext);
     }
 
     @Override
     public void onChangeUri(ContentResolver resolver, Uri uri) {
-        getAutoRotation();
-        applyAutoRotationChanges();
+        updateResources();
     }
 }

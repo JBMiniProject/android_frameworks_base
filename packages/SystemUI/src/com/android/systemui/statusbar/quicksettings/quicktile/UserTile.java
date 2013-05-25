@@ -1,10 +1,8 @@
 package com.android.systemui.statusbar.quicksettings.quicktile;
 
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -26,11 +24,8 @@ public class UserTile extends QuickSettingsTile {
     private static final String TAG = "UserTile";
     private Drawable userAvatar;
 
-    public UserTile(Context context, LayoutInflater inflater,
-            QuickSettingsContainerView container, QuickSettingsController qsc) {
-        super(context, inflater, container, qsc);
-
-        mTileLayout = R.layout.quick_settings_tile_user;
+    public UserTile(Context context, QuickSettingsController qsc) {
+        super(context, qsc, R.layout.quick_settings_tile_user);
 
         mOnClick = new View.OnClickListener() {
             @Override
@@ -50,11 +45,6 @@ public class UserTile extends QuickSettingsTile {
     }
 
     @Override
-    public void onChangeUri(ContentResolver resolver, Uri uri) {
-        queryForUserInformation();
-    }
-
-    @Override
     public void onReceive(Context context, Intent intent) {
         queryForUserInformation();
     }
@@ -63,6 +53,11 @@ public class UserTile extends QuickSettingsTile {
     void onPostCreate() {
         queryForUserInformation();
         super.onPostCreate();
+    }
+
+    @Override
+    public void updateResources() {
+        queryForUserInformation();
     }
 
     @Override
@@ -103,4 +98,10 @@ public class UserTile extends QuickSettingsTile {
         userAvatar = avatar;
         updateQuickSettings();
     }
+
+    @Override
+    public void onChangeUri(ContentResolver resolver, Uri uri) {
+        queryForUserInformation();
+    }
+
 }

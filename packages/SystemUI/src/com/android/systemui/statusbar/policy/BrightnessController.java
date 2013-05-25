@@ -20,6 +20,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.IPowerManager;
+import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.provider.Settings;
@@ -27,29 +28,52 @@ import android.provider.Settings.SettingNotFoundException;
 import android.util.Slog;
 import android.view.IWindowManager;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
+
+import java.util.ArrayList;
 
 public class BrightnessController implements ToggleSlider.Listener {
     private static final String TAG = "StatusBar.BrightnessController";
 
-    private int mScreenBrightnessDim;
-    private static final int MAXIMUM_BACKLIGHT = android.os.PowerManager.BRIGHTNESS_ON;
+    private final int mMinimumBacklight;
+    private final int mMaximumBacklight;
 
-    private Context mContext;
-    private ToggleSlider mControl;
-    private IPowerManager mPower;
+    private final Context mContext;
+    private final ImageView mIcon;
+    private final ToggleSlider mControl;
+    private final boolean mAutomaticAvailable;
+    private final IPowerManager mPower;
 
-    public BrightnessController(Context context, ToggleSlider control) {
+    private ArrayList<BrightnessStateChangeCallback> mChangeCallbacks =
+            new ArrayList<BrightnessStateChangeCallback>();
+
+    public interface BrightnessStateChangeCallback {
+        public void onBrightnessLevelChanged();
+    }
+
+    public BrightnessController(Context context, ImageView icon, ToggleSlider control) {
         mContext = context;
+        mIcon = icon;
         mControl = control;
 
-        boolean automaticAvailable = context.getResources().getBoolean(
+        PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+        mMinimumBacklight = pm.BRIGHTNESS_DIM + 8;
+        mMaximumBacklight = pm.BRIGHTNESS_ON;
+
+        mAutomaticAvailable = context.getResources().getBoolean(
                 com.android.internal.R.bool.config_automatic_brightness_available);
         mPower = IPowerManager.Stub.asInterface(ServiceManager.getService("power"));
 
-        mScreenBrightnessDim = context.getResources().getInteger(
-                com.android.internal.R.integer.config_screenBrightnessDim);
+        control.setOnChangedListener(this);
+    }
 
-        if (automaticAvailable) {
+    public void addStateChangedCallback(BrightnessStateChangeCallback cb) {
+        mChangeCallbacks.add(cb);
+    }
+
+    @Override
+    public void onInit(ToggleSlider control) {
+        if (mAutomaticAvailable) {
             int automatic;
             try {
                 automatic = Settings.System.getInt(mContext.getContentResolver(),
@@ -58,8 +82,10 @@ public class BrightnessController implements ToggleSlider.Listener {
                 automatic = 0;
             }
             control.setChecked(automatic != 0);
+            updateIcon(automatic != 0);
         } else {
             control.setChecked(false);
+            updateIcon(false /*automatic*/);
             //control.hideToggle();
         }
 
@@ -68,20 +94,19 @@ public class BrightnessController implements ToggleSlider.Listener {
             value = Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.SCREEN_BRIGHTNESS);
         } catch (SettingNotFoundException ex) {
-            value = MAXIMUM_BACKLIGHT;
+            value = mMaximumBacklight;
         }
 
-        control.setMax(MAXIMUM_BACKLIGHT - mScreenBrightnessDim);
-        control.setValue(value - mScreenBrightnessDim);
-
-        control.setOnChangedListener(this);
+        control.setMax(mMaximumBacklight - mMinimumBacklight);
+        control.setValue(value - mMinimumBacklight);
     }
 
     public void onChanged(ToggleSlider view, boolean tracking, boolean automatic, int value) {
         setMode(automatic ? Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC
                 : Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+        updateIcon(automatic);
         if (!automatic) {
-            final int val = value + mScreenBrightnessDim;
+            final int val = value + mMinimumBacklight;
             setBrightness(val);
             if (!tracking) {
                 AsyncTask.execute(new Runnable() {
@@ -91,6 +116,10 @@ public class BrightnessController implements ToggleSlider.Listener {
                         }
                     });
             }
+        }
+
+        for (BrightnessStateChangeCallback cb : mChangeCallbacks) {
+            cb.onBrightnessLevelChanged();
         }
     }
 
@@ -103,6 +132,14 @@ public class BrightnessController implements ToggleSlider.Listener {
         try {
             mPower.setBacklightBrightness(brightness);
         } catch (RemoteException ex) {
+        }
+    }
+
+    private void updateIcon(boolean automatic) {
+        if (mIcon != null) {
+            mIcon.setImageResource(automatic ?
+                    com.android.systemui.R.drawable.ic_qs_brightness_auto_on :
+                    com.android.systemui.R.drawable.ic_qs_brightness_auto_off);
         }
     }
 }

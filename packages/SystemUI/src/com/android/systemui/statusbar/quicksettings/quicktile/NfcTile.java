@@ -3,8 +3,6 @@ package com.android.systemui.statusbar.quicksettings.quicktile;
 import android.content.Context;
 import android.content.Intent;
 import android.nfc.NfcAdapter;
-import android.nfc.NfcManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -15,22 +13,17 @@ import com.android.systemui.statusbar.quicksettings.QuickSettingsController;
 
 public class NfcTile extends QuickSettingsTile {
 
-    private static String TAG = "NfcTile";
     private static NfcAdapter mNfcAdapter;
     private static final int NFC_ADAPTER_UNKNOWN = -100;
 
-    public NfcTile(Context context, LayoutInflater inflater,
-            QuickSettingsContainerView container,
-            QuickSettingsController qsc) {
-        super(context, inflater, container, qsc);
-
-        setTileState(getNfcState());
+    public NfcTile(Context context, QuickSettingsController qsc) {
+        super(context, qsc);
 
         mOnClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 toggleState();
-                applyNfcChanges();
+                updateResources();
             }
         };
 
@@ -49,12 +42,19 @@ public class NfcTile extends QuickSettingsTile {
     }
 
     @Override
-    public void onReceive(Context context, Intent intent) {
-        applyNfcChanges();
+    void onPostCreate() {
+        updateTile(getNfcState());
+        super.onPostCreate();
     }
 
-    private void applyNfcChanges() {
-        updateTileState();
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        updateResources();
+    }
+
+    @Override
+    public void updateResources() {
+        updateTile(getNfcState());
         updateQuickSettings();
     }
 
@@ -72,13 +72,7 @@ public class NfcTile extends QuickSettingsTile {
         }
     }
 
-    private void updateTileState() {
-        // Get the initial label
-        mLabel = mContext.getString(R.string.quick_settings_nfc);
-        setTileState(getNfcState());
-    }
-
-    private void setTileState(int state) {
+    private synchronized void updateTile(int state) {
         switch (state) {
         case NfcAdapter.STATE_TURNING_ON:
         case NfcAdapter.STATE_ON:

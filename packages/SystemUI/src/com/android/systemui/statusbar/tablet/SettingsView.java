@@ -37,7 +37,7 @@ import android.view.LayoutInflater;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.policy.AirplaneModeController;
 import com.android.systemui.statusbar.policy.AutoRotateController;
-import com.android.systemui.statusbar.policy.BluetoothController;
+//import com.android.systemui.statusbar.policy.BluetoothController;
 import com.android.systemui.statusbar.policy.BrightnessController;
 import com.android.systemui.statusbar.policy.DoNotDisturbController;
 import com.android.systemui.statusbar.policy.ToggleSlider;
@@ -73,7 +73,7 @@ public class SettingsView extends LinearLayout implements View.OnClickListener {
 
     AirplaneModeController mAirplane;
     AutoRotateController mRotate;
-    BluetoothController mBluetooth;
+//    BluetoothController mBluetooth;
     BrightnessController mBrightness;
     DoNotDisturbController mDoNotDisturb;
     FlashlightController mFlashLight;
@@ -137,7 +137,7 @@ public class SettingsView extends LinearLayout implements View.OnClickListener {
         final Context context = getContext();
 
         mBrightness = new BrightnessController(context,
-                (ToggleSlider)findViewById(R.id.brightness));
+                null, (ToggleSlider)findViewById(R.id.brightness));
         mDoNotDisturb = new DoNotDisturbController(context,
                 (CompoundButton)findViewById(R.id.do_not_disturb_checkbox));
 
@@ -187,8 +187,8 @@ public class SettingsView extends LinearLayout implements View.OnClickListener {
         super.onDetachedFromWindow();
         if(mAirplane != null)
             mAirplane.release();
-        if(mGps != null)
-            mGps.release();
+///        if(mGps != null)
+//            mGps.release();
         if(mSound != null)
             mSound.release();
         if(mRotate != null)
@@ -199,9 +199,9 @@ public class SettingsView extends LinearLayout implements View.OnClickListener {
     private void clearToggleControllers() {
         mAirplane = null;
         mRotate = null;
-        mBluetooth = null;
+//        mBluetooth = null;
         mFlashLight = null;
-        mGps = null;
+//        mGps = null;
         mMobileData = null;
         mNetworkMode = null;
         mSound = null;
@@ -221,10 +221,10 @@ public class SettingsView extends LinearLayout implements View.OnClickListener {
                     }
                 });
         }
-        else if(id.equals(KEY_TOGGLES[2]))
-           mBluetooth = new BluetoothController(mContext, checkbox);
-        else if(id.equals(KEY_TOGGLES[3]))
-           mGps = new LocationController(mContext, checkbox);
+//        else if(id.equals(KEY_TOGGLES[2]))
+//           mBluetooth = new BluetoothController(mContext, checkbox);
+//        else if(id.equals(KEY_TOGGLES[3]))
+//           mGps = new LocationController(mContext, checkbox);
         else if(id.equals(KEY_TOGGLES[4]))
            mWifi = new WifiController(mContext, checkbox);
         else if(id.equals(KEY_TOGGLES[5]))
@@ -242,10 +242,10 @@ public class SettingsView extends LinearLayout implements View.OnClickListener {
            return new int[]{R.drawable.ic_sysbar_airplane_on, R.string.status_bar_settings_airplane, AIRPLANE_ID};
         else if(id.equals(KEY_TOGGLES[1]))
            return new int[]{R.drawable.ic_sysbar_rotate_on, R.string.status_bar_settings_auto_rotation, ROTATE_ID};
-        else if(id.equals(KEY_TOGGLES[2]))
-           return new int[]{R.drawable.stat_sys_data_bluetooth, R.string.status_bar_settings_bluetooth_button, BLUETOOTH_ID};
-        else if(id.equals(KEY_TOGGLES[3]))
-           return new int[]{R.drawable.stat_gps_on, R.string.status_bar_settings_location, GPS_ID};
+//        else if(id.equals(KEY_TOGGLES[2]))
+//           return new int[]{R.drawable.stat_sys_data_bluetooth, R.string.status_bar_settings_bluetooth_button, BLUETOOTH_ID};
+//        else if(id.equals(KEY_TOGGLES[3]))
+//           return new int[]{R.drawable.stat_gps_on, R.string.status_bar_settings_location, GPS_ID};
         else if(id.equals(KEY_TOGGLES[4]))
            return new int[]{R.drawable.ic_sysbar_wifi_on, R.string.status_bar_settings_wifi_button, WIFI_ID};
         else if(id.equals(KEY_TOGGLES[5]))
@@ -290,14 +290,14 @@ public class SettingsView extends LinearLayout implements View.OnClickListener {
                 getContext().startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS)
                         .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                 break;
-                case BLUETOOTH_ID:
-                getContext().startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
-                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                break;
-                case GPS_ID:
-                getContext().startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                break;
+//                case BLUETOOTH_ID:
+//                getContext().startActivity(new Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
+//                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+//                break;
+//                case GPS_ID:
+//                getContext().startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+//                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+//                break;
                 case FLASHLIGHT_ID:
                 Intent intent = new Intent(Intent.ACTION_MAIN);
                 intent.setClassName("net.cactii.flash2", "net.cactii.flash2.MainActivity");

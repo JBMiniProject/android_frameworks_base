@@ -14,11 +14,15 @@ import com.android.systemui.statusbar.policy.NetworkController.NetworkSignalChan
 
 public class WiFiTile extends QuickSettingsTile implements NetworkSignalChangedCallback {
 
-    public WiFiTile(Context context, LayoutInflater inflater,
-            QuickSettingsContainerView container, QuickSettingsController qsc) {
-        super(context, inflater, container, qsc);
+    private boolean mWifiConnected;
+    private boolean mWifiNotConnected;
+    private int mWifiSignalIconId;
+    private String mDescription;
 
+    public WiFiTile(Context context, QuickSettingsController qsc) {
+        super(context, qsc);
         mOnClick = new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
                 WifiManager wfm = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
@@ -26,6 +30,7 @@ public class WiFiTile extends QuickSettingsTile implements NetworkSignalChangedC
             }
         };
         mOnLongClick = new OnLongClickListener() {
+
             @Override
             public boolean onLongClick(View v) {
                 startSettingsActivity(android.provider.Settings.ACTION_WIFI_SETTINGS);
@@ -38,40 +43,48 @@ public class WiFiTile extends QuickSettingsTile implements NetworkSignalChangedC
     void onPostCreate() {
         NetworkController controller = new NetworkController(mContext);
         controller.addNetworkSignalChangedCallback(this);
+        updateTile();
         super.onPostCreate();
     }
 
     @Override
-    public void onWifiSignalChanged(boolean enabled, int mWifiSignalIconId, String description) {
-        WifiManager wfmg = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
-        if (enabled) {
+    public void updateResources() {
+        updateTile();
+        super.updateResources();
+    }
+
+    private synchronized void updateTile() {
+        if (mWifiConnected) {
             mDrawable = mWifiSignalIconId;
-            if (description != null) {
-                mLabel = description;
-            } else {
-                mLabel = mContext.getString(R.string.quick_settings_wifi_label_connected);
-            }
-        } else if (wfmg.isWifiEnabled()) {
-            mDrawable = R.drawable.ic_qs_wifi_4;
+            mLabel = mDescription;
+        } else if (mWifiNotConnected) {
+            mDrawable = R.drawable.ic_qs_wifi_0;
             mLabel = mContext.getString(R.string.quick_settings_wifi_label);
-        } else if (wfmg.getWifiState() == WifiManager.WIFI_STATE_ENABLING) {
-            mDrawable = R.drawable.ic_qs_wifi_4;
-            mLabel = mContext.getString(R.string.quick_settings_wifi_label_turnon);
-        } else if (wfmg.getWifiState() == WifiManager.WIFI_STATE_DISABLING) {
-            mDrawable = R.drawable.ic_qs_wifi_0;
-            mLabel = mContext.getString(R.string.quick_settings_wifi_label_turnoff);
-        } else if (wfmg.getWifiState() == WifiManager.WIFI_STATE_UNKNOWN) {
-            mDrawable = R.drawable.ic_qs_wifi_0;
-            mLabel = mContext.getString(R.string.quick_settings_wifi_label_error);
         } else {
-            mDrawable = R.drawable.ic_qs_wifi_0;
+            mDrawable = R.drawable.ic_qs_wifi_no_network;
             mLabel = mContext.getString(R.string.quick_settings_wifi_off_label);
         }
-        updateQuickSettings();
     }
 
     @Override
-    public void onMobileDataSignalChanged(boolean enabled, int mPhoneSignalQSIconId, String description) {
-        // TODO Auto-generated method stub
+    public void onWifiSignalChanged(boolean enabled, int wifiSignalIconId,
+            String wifiSignalContentDescriptionId, String description) {
+        mWifiConnected = enabled && (wifiSignalIconId > 0) && (description != null);
+        mWifiNotConnected = (wifiSignalIconId > 0) && (description == null);
+        mWifiSignalIconId = wifiSignalIconId;
+        mDescription = description;
+        updateResources();
     }
+
+    @Override
+    public void onMobileDataSignalChanged(boolean enabled,
+            int mobileSignalIconId, String mobileSignalContentDescriptionId,
+            int dataTypeIconId, String dataTypeContentDescriptionId,
+            String description) {
+    }
+
+    @Override
+    public void onAirplaneModeChanged(boolean enabled) {
+    }
+
 }

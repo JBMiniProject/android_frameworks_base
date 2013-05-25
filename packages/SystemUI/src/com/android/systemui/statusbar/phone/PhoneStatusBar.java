@@ -47,6 +47,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.NinePatchDrawable;
 import android.inputmethodservice.InputMethodService;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.IPowerManager;
@@ -659,6 +660,8 @@ public class PhoneStatusBar extends BaseStatusBar {
         if (mQuickContainer != null) {
             mQS = new QuickSettingsController(context, mQuickContainer);
 
+            mQS.setupQuickSettings();
+
             // Start observing for changes
             mTilesChangedObserver = new TilesChangedObserver(mHandler);
             mTilesChangedObserver.startObserving();
@@ -691,7 +694,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         context.registerReceiver(mBroadcastReceiver, filter);
 
         mPowerWidget.setupWidget();
-        mQS.updateResources();
+
         mVelocityTracker = VelocityTracker.obtain();
 
         return mStatusBarView;
@@ -1225,7 +1228,9 @@ public class PhoneStatusBar extends BaseStatusBar {
         mClearButton.setEnabled(clearable);
 
         if (clearable) {
-            toggleNotif();
+            if (NotifEnable == false) {
+                toggleNotif();
+            }
         }
 
         final View nlo = mStatusBarView.findViewById(R.id.notification_lights_out);
@@ -2985,8 +2990,13 @@ public class PhoneStatusBar extends BaseStatusBar {
 
         @Override
         public void onChange(boolean selfChange) {
+            onChange(selfChange, null);
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri uri) {
             if (mQuickContainer != null) {
-                mQS.updateResources();
+                mQS.setupQuickSettings();
             }
         }
 

@@ -2,11 +2,9 @@ package com.android.systemui.statusbar.quicksettings.quicktile;
 
 import com.android.internal.statusbar.IStatusBarService;
 import android.app.ActivityManagerNative;
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.ServiceManager;
@@ -28,47 +26,37 @@ import com.android.systemui.statusbar.quicksettings.QuickSettingsTileView;
 public class QuickSettingsTile implements OnClickListener {
 
     protected final Context mContext;
-    protected final ViewGroup mContainerView;
-    protected final LayoutInflater mInflater;
     protected QuickSettingsTileView mTile;
     protected OnClickListener mOnClick;
     protected OnLongClickListener mOnLongClick;
-    protected int mTileLayout;
+    protected final int mTileLayout;
     protected int mDrawable;
     protected String mLabel;
-    protected QuickSettingsController mQsc;
     IStatusBarService mStatusBarService;
     Handler mHandler;
-    protected boolean mHapticFeedback;
-    protected Vibrator mVibrator;
-    private long[] mClickPattern;
-    private long[] mLongClickPattern;
+    protected QuickSettingsController mQsc;
 
-    public QuickSettingsTile(Context context, LayoutInflater inflater, QuickSettingsContainerView container, QuickSettingsController qsc) {
-        mContext = context;
-        mContainerView = container;
-        mInflater = inflater;
-        mDrawable = R.drawable.stat_sys_roaming_cdma_0;
-        mLabel = mContext.getString(R.string.quick_settings_label_enabled);
-        mQsc = qsc;
-        mTileLayout = R.layout.quick_settings_tile_generic;
-        mHandler = new Handler();
-        mVibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+    public QuickSettingsTile(Context context, QuickSettingsController qsc) {
+        this(context, qsc, R.layout.quick_settings_tile_generic);
     }
 
-    public void setupQuickSettingsTile(){
-        createQuickSettings();
+    public QuickSettingsTile(Context context, QuickSettingsController qsc, int layout) {
+        mContext = context;
+        mDrawable = R.drawable.ic_notifications;
+        mLabel = mContext.getString(R.string.quick_settings_label_enabled);
+        mQsc = qsc;
+        mHandler = new Handler();
+        mTileLayout = layout;
+    }
+
+    public void setupQuickSettingsTile(LayoutInflater inflater, QuickSettingsContainerView container) {
+        mTile = (QuickSettingsTileView) inflater.inflate(R.layout.quick_settings_tile, container, false);
+        mTile.setContent(mTileLayout, inflater);
+        container.addView(mTile);
         onPostCreate();
         updateQuickSettings();
         mTile.setOnClickListener(this);
         mTile.setOnLongClickListener(mOnLongClick);
-        updateHapticFeedbackSetting();
-    }
-
-    void createQuickSettings(){
-        mTile = (QuickSettingsTileView) mInflater.inflate(R.layout.quick_settings_tile, mContainerView, false);
-        mTile.setContent(mTileLayout, mInflater);
-        mContainerView.addView(mTile);
     }
 
     void onPostCreate(){}
@@ -76,6 +64,12 @@ public class QuickSettingsTile implements OnClickListener {
     public void onReceive(Context context, Intent intent) {}
 
     public void onChangeUri(ContentResolver resolver, Uri uri) {}
+
+    public void updateResources() {
+        if(mTile != null) {
+            updateQuickSettings();
+        }
+    }
 
     void updateQuickSettings(){
         TextView tv = (TextView) mTile.findViewById(R.id.tile_textview);
@@ -94,10 +88,8 @@ public class QuickSettingsTile implements OnClickListener {
             ActivityManagerNative.getDefault().dismissKeyguardOnNextActivity();
         } catch (RemoteException e) {
         }
-        updateHapticFeedbackSetting();
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         mContext.startActivity(intent);
-        provideHapticFeedback(mLongClickPattern);
         startCollapseActivity();
     }
 
@@ -123,55 +115,13 @@ public class QuickSettingsTile implements OnClickListener {
         return mStatusBarService;
     }
 
-    private void updateHapticFeedbackSetting() {
-        ContentResolver cr = mContext.getContentResolver();
-        int expandedHapticFeedback = Settings.System.getInt(cr,
-                Settings.System.EXPANDED_HAPTIC_FEEDBACK, 2);
-        long[] clickPattern = null, longClickPattern = null;
-        boolean hapticFeedback;
-
-        if (expandedHapticFeedback == 2) {
-             hapticFeedback = Settings.System.getInt(cr,
-                     Settings.System.HAPTIC_FEEDBACK_ENABLED, 1) == 1;
-        } else {
-            hapticFeedback = (expandedHapticFeedback == 1);
-        }
-
-/*        if (hapticFeedback) {
-            clickPattern = Settings.System.getLongArray(cr,
-                    Settings.System.HAPTIC_DOWN_ARRAY, null);
-            longClickPattern = Settings.System.getLongArray(cr,
-                    Settings.System.HAPTIC_LONG_ARRAY, null);
-        }
-*/
-        setHapticFeedback(hapticFeedback, clickPattern, longClickPattern);
-    }
-
-    void setHapticFeedback(boolean enabled, long[] clickPattern, long[] longClickPattern) {
-        mHapticFeedback = enabled;
-        mClickPattern = clickPattern;
-        mLongClickPattern = longClickPattern;
-    }
-
     @Override
     public final void onClick(View v) {
-        updateHapticFeedbackSetting();
         mOnClick.onClick(v);
         ContentResolver resolver = mContext.getContentResolver();
         boolean shouldCollapse = Settings.System.getInt(resolver, Settings.System.QS_COLLAPSE_PANEL, 0) == 1;
         if (shouldCollapse) {
             startCollapseActivity();
-        }
-        provideHapticFeedback(mClickPattern);
-    }
-
-    private void provideHapticFeedback(long[] pattern) {
-        if (mHapticFeedback && pattern != null) {
-            if (pattern.length == 1) {
-                mVibrator.vibrate(pattern[0]);
-            } else {
-                mVibrator.vibrate(pattern, -1);
-            }
         }
     }
 

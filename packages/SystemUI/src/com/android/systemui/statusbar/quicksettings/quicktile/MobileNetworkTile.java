@@ -19,32 +19,47 @@ import com.android.systemui.statusbar.quicksettings.QuickSettingsContainerView;
 import com.android.systemui.statusbar.policy.NetworkController;
 import com.android.systemui.statusbar.policy.NetworkController.NetworkSignalChangedCallback;
 
+import static com.android.internal.util.jbminiproject.QSUtils.deviceSupportsMobileData;
+
 public class MobileNetworkTile extends QuickSettingsTile implements NetworkSignalChangedCallback {
 
-    private int mDataTypeIconId;
-    private boolean dataOn = false;
+    private static final int NO_OVERLAY = 0;
+    private static final int DISABLED_OVERLAY = -1;
 
-    public MobileNetworkTile(Context context, LayoutInflater inflater,
-            QuickSettingsContainerView container, QuickSettingsController qsc) {
-        super(context, inflater, container, qsc);
-        mTileLayout = R.layout.quick_settings_tile_rssi;
+    private boolean mEnabled;
+    private String mDescription;
+    private int mDataTypeIconId = NO_OVERLAY;
+    private String dataContentDescription;
+    private String signalContentDescription;
+    private boolean wifiOn = false;
+
+    private ConnectivityManager mCm;
+
+    public MobileNetworkTile(Context context, QuickSettingsController qsc) {
+        super(context, qsc, R.layout.quick_settings_tile_rssi);
+
+        mCm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+
         mOnClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TelephonyManager tm = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
-                ConnectivityManager conMan = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
-                if(tm.getDataState() == TelephonyManager.DATA_DISCONNECTED){
-                    conMan.setMobileDataEnabled(true);
-                }else{
-                    conMan.setMobileDataEnabled(false);
+                if (!mCm.getMobileDataEnabled()) {
+                    updateOverlayImage(NO_OVERLAY); // None, onMobileDataSignalChanged will set final overlay image
+                    mCm.setMobileDataEnabled(true);
+                } else {
+                    updateOverlayImage(DISABLED_OVERLAY);
+                    mCm.setMobileDataEnabled(false);
                 }
             }
         };
+
         mOnLongClick = new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_MAIN);
-                intent.setClassName("com.android.phone", "com.android.phone.Settings");
+                Intent intent = new Intent();
+                intent.setComponent(new ComponentName(
+                        "com.android.settings",
+                        "com.android.settings.Settings$DataUsageSummaryActivity"));
                 startSettingsActivity(intent);
                 return true;
             }
@@ -55,36 +70,100 @@ public class MobileNetworkTile extends QuickSettingsTile implements NetworkSigna
     void onPostCreate() {
         NetworkController controller = new NetworkController(mContext);
         controller.addNetworkSignalChangedCallback(this);
+        updateTile();
         super.onPostCreate();
     }
 
     @Override
-    public void onWifiSignalChanged(boolean enabled, int mWifiSignalIconId, String description) {
-        // TODO Auto-generated method stub
+    public void updateResources() {
+        updateTile();
+        super.updateResources();
+    }
+
+    private synchronized void updateTile() {
+        Resources r = mContext.getResources();
+        dataContentDescription = mEnabled && (mDataTypeIconId > 0) && !wifiOn
+                ? dataContentDescription
+                : r.getString(R.string.accessibility_no_data);
+        mLabel = mEnabled
+                ? removeTrailingPeriod(mDescription)
+                : r.getString(R.string.quick_settings_rssi_emergency_only);
     }
 
     @Override
-    public void onMobileDataSignalChanged(boolean enabled, int mPhoneSignalQSIconId, String description) {
-        // TODO: If view is in awaiting state, disable
-//        dataOn = mMobileDataEnable;
-        mDrawable = mPhoneSignalQSIconId;
-        mDataTypeIconId = 1; //mDataSignalIconId;
-        mLabel = description;
-        updateQuickSettings();
+    public void onWifiSignalChanged(boolean enabled, int wifiSignalIconId,
+            String wifitSignalContentDescriptionId, String description) {
+        wifiOn = enabled;
+    }
+
+    @Override
+    public void onMobileDataSignalChanged(boolean enabled,
+            int mobileSignalIconId, String mobileSignalContentDescriptionId,
+            int dataTypeIconId, String dataTypeContentDescriptionId,
+            String description) {
+        if (deviceSupportsMobileData(mContext)) {
+            // TODO: If view is in awaiting state, disable
+            Resources r = mContext.getResources();
+            mDrawable = enabled && (mobileSignalIconId > 0)
+                    ? mobileSignalIconId
+                    : R.drawable.ic_qs_signal_no_signal;
+            signalContentDescription = enabled && (mobileSignalIconId > 0)
+                    ? signalContentDescription
+                    : r.getString(R.string.accessibility_no_signal);
+
+            // Determine the overlay image
+            if (enabled && (dataTypeIconId > 0) && !wifiOn) {
+                mDataTypeIconId = dataTypeIconId;
+            } else if (!mCm.getMobileDataEnabled()) {
+                mDataTypeIconId = DISABLED_OVERLAY;
+            } else {
+                mDataTypeIconId = NO_OVERLAY;
+            }
+
+            mEnabled = enabled;
+            mDescription = description;
+
+            updateResources();
+        }
+    }
+
+    @Override
+    public void onAirplaneModeChanged(boolean enabled) {
     }
 
     @Override
     void updateQuickSettings() {
         TextView tv = (TextView) mTile.findViewById(R.id.rssi_textview);
-        tv.setText(mLabel);
         ImageView iv = (ImageView) mTile.findViewById(R.id.rssi_image);
-        ImageView iov = (ImageView) mTile.findViewById(R.id.rssi_overlay_image);
-        iv.setBackgroundResource(mDrawable);
-//        if (dataOn) {
-//            iov.setVisibility(View.VISIBLE);
-//            iov.setBackgroundResource(mDataTypeIconId);
-//        } else {
-            iov.setVisibility(View.GONE);
-//        }
+
+        iv.setImageResource(mDrawable);
+        updateOverlayImage(mDataTypeIconId);
+        tv.setText(mLabel);
+        mTile.setContentDescription(mContext.getResources().getString(
+                R.string.accessibility_quick_settings_mobile,
+                signalContentDescription, dataContentDescription,
+                mLabel));
     }
+
+    void updateOverlayImage(int dataTypeIconId) {
+        ImageView iov = (ImageView) mTile.findViewById(R.id.rssi_overlay_image);
+        if (dataTypeIconId > 0) {
+            iov.setImageResource(dataTypeIconId);
+        } else if (dataTypeIconId == DISABLED_OVERLAY) {
+            iov.setImageResource(R.drawable.ic_qs_signal_data_off);
+        } else {
+            iov.setImageDrawable(null);
+        }
+    }
+
+    // Remove the period from the network name
+    public static String removeTrailingPeriod(String string) {
+        if (string == null) return null;
+        final int length = string.length();
+        if (string.endsWith(".")) {
+            string.substring(0, length - 1);
+        }
+        return string;
+    }
+
 }

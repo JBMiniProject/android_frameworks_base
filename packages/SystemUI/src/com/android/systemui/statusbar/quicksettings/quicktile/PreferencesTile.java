@@ -10,12 +10,8 @@ import com.android.systemui.statusbar.quicksettings.QuickSettingsController;
 
 public class PreferencesTile extends QuickSettingsTile {
 
-    public PreferencesTile(Context context, LayoutInflater inflater,
-            QuickSettingsContainerView container, QuickSettingsController qsc) {
-        super(context, inflater, container, qsc);
-
-        mDrawable = R.drawable.ic_qs_settings;
-        mLabel = context.getString(R.string.quick_settings_settings_label);
+    public PreferencesTile(Context context, QuickSettingsController qsc) {
+        super(context, qsc);
 
         mOnClick = new View.OnClickListener() {
 
@@ -24,5 +20,22 @@ public class PreferencesTile extends QuickSettingsTile {
                 startSettingsActivity(android.provider.Settings.ACTION_SETTINGS);
             }
         };
+    }
+
+    @Override
+    void onPostCreate() {
+        updateTile();
+        super.onPostCreate();
+    }
+
+    @Override
+    public void updateResources() {
+        updateTile();
+        super.updateResources();
+    }
+
+    private synchronized void updateTile() {
+        mDrawable = R.drawable.ic_qs_settings;
+        mLabel = mContext.getString(R.string.quick_settings_settings_label);
     }
 }

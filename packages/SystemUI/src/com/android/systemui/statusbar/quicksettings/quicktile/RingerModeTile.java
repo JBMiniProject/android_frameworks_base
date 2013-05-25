@@ -1,13 +1,10 @@
 package com.android.systemui.statusbar.quicksettings.quicktile;
 
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.net.Uri;
-import android.os.Handler;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -39,27 +36,18 @@ public class RingerModeTile extends QuickSettingsTile {
     private int mRingerValuesIndex;
 
     private AudioManager mAudioManager;
-    private Handler mHandler;
 
-    public RingerModeTile(Context context, LayoutInflater inflater,
-            QuickSettingsContainerView container, QuickSettingsController qsc) {
-        super(context, inflater, container, qsc);
+    public RingerModeTile(Context context, QuickSettingsController qsc) {
+        super(context, qsc);
 
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
-        mHandler = new Handler();
-
-        // Load the available ringer modes
-        updateSettings(mContext.getContentResolver());
-
-        // Make sure we show the initial state correctly
-        updateState();
 
         // Tile actions
         mOnClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 toggleState();
-                applyVibrationChanges();
+                updateResources();
             }
         };
 
@@ -81,39 +69,50 @@ public class RingerModeTile extends QuickSettingsTile {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        applyVibrationChanges();
+        updateResources();
     }
 
     @Override
     public void onChangeUri(ContentResolver resolver, Uri uri) {
         updateSettings(mContext.getContentResolver());
-        applyVibrationChanges();
+        updateResources();
     }
 
-    private void applyVibrationChanges(){
-        updateState();
-        updateQuickSettings();
+    @Override
+    void onPostCreate() {
+        // Load the available ringer modes
+        updateSettings(mContext.getContentResolver());
+
+        // Make sure we show the initial state correctly
+        updateTile();
+
+        super.onPostCreate();
     }
 
-    protected void updateState() {
+    @Override
+    public void updateResources() {
+        updateTile();
+        super.updateResources();
+    }
+
+    private synchronized void updateTile() {
+        // The title does not change
+        mLabel = mContext.getString(R.string.quick_settings_ringer_normal);
+
         // The icon will change depending on index
         findCurrentState();
         switch (mRingersIndex) {
             case 0:
                 mDrawable = R.drawable.ic_qs_ring_off;
-                mLabel = mContext.getString(R.string.quick_settings_ringer_offf);
                 break;
             case 1:
                 mDrawable = R.drawable.ic_qs_vibrate_on;
-                mLabel = mContext.getString(R.string.quick_settings_vibrate);
                 break;
             case 2:
                 mDrawable = R.drawable.ic_qs_ring_on;
-                mLabel = mContext.getString(R.string.quick_settings_ringer_onn);
                 break;
             case 3:
                 mDrawable = R.drawable.ic_qs_ring_vibrate_on;
-                mLabel = mContext.getString(R.string.quick_settings_ringer_vibrate);
                 break;
         }
 
@@ -212,6 +211,9 @@ public class RingerModeTile extends QuickSettingsTile {
             }
 
             Ringer r = (Ringer) o;
+            if ((mRingerMode == AudioManager.RINGER_MODE_SILENT || mRingerMode == AudioManager.RINGER_MODE_VIBRATE)
+                    && (r.mRingerMode == mRingerMode))
+                return true;
             return r.mVibrateWhenRinging == mVibrateWhenRinging
                     && r.mRingerMode == mRingerMode;
         }

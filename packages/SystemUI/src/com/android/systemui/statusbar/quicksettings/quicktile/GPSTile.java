@@ -1,40 +1,38 @@
 package com.android.systemui.statusbar.quicksettings.quicktile;
 
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.location.LocationManager;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.AnimationDrawable;
 import android.provider.Settings;
 import android.view.LayoutInflater;
-import android.net.Uri;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.android.systemui.R;
 import com.android.systemui.statusbar.quicksettings.QuickSettingsController;
 import com.android.systemui.statusbar.quicksettings.QuickSettingsContainerView;
+import com.android.systemui.statusbar.policy.LocationController;
+import com.android.systemui.statusbar.policy.LocationController.LocationGpsStateChangeCallback;
 
-public class GPSTile extends QuickSettingsTile {
+
+public class GPSTile extends QuickSettingsTile implements LocationGpsStateChangeCallback {
 
     private boolean enabled = false;
     private boolean working = false;
-    private boolean mEnabled = false;
+
+    private String mDescription = null;
 
     ContentResolver mContentResolver;
 
-    public GPSTile(Context context, LayoutInflater inflater,
-            QuickSettingsContainerView container, QuickSettingsController qsc) {
-        super(context, inflater, container, qsc);
+    public GPSTile(Context context, QuickSettingsController qsc) {
+        super(context, qsc);
 
         mContentResolver = mContext.getContentResolver();
-        mTileLayout = R.layout.quick_settings_tile_location;
+        LocationController controller = new LocationController(mContext);
+        controller.addStateChangedCallback(this);
+
         enabled = Settings.Secure.isLocationProviderEnabled(mContentResolver, LocationManager.GPS_PROVIDER);
 
         mOnClick = new OnClickListener() {
@@ -52,65 +50,49 @@ public class GPSTile extends QuickSettingsTile {
             }
         };
         qsc.registerAction(LocationManager.PROVIDERS_CHANGED_ACTION, this);
-        qsc.registerAction(LocationManager.GPS_ENABLED_CHANGE_ACTION, this);
-        qsc.registerAction(LocationManager.GPS_FIX_CHANGE_ACTION, this);
-    }
-
-    @Override
-    void onPostCreate() {
-        applyGPSChanges();
-        super.onPostCreate();
-    }
-
-    @Override
-    public void onChangeUri(ContentResolver resolver, Uri uri) {
-        applyGPSChanges();
-    }
-
-    void applyGPSChanges() {
-        setGenericLabel();
-        updateQuickSettings();
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        final String action = intent.getAction();
         enabled = Settings.Secure.isLocationProviderEnabled(mContentResolver, LocationManager.GPS_PROVIDER);
-        boolean GPSenabled = intent.getBooleanExtra(LocationManager.EXTRA_GPS_ENABLED, false);
-        if (action.equals(LocationManager.GPS_FIX_CHANGE_ACTION) && GPSenabled) {
-            mEnabled = GPSenabled;
-            working = false;
-            applyGPSChanges();
-        } else if (action.equals(LocationManager.GPS_ENABLED_CHANGE_ACTION) && !GPSenabled) {
-            mEnabled = !GPSenabled;
-            working = false;
-            applyGPSChanges();
-        } else {
-            working = enabled;
-            mEnabled = false;
-            applyGPSChanges();
-        }
+        updateResources();
     }
 
     @Override
-    void updateQuickSettings() {
-        TextView tv = (TextView) mTile.findViewById(R.id.gps_textview);
-        if (tv != null) tv.setText(mLabel);
-        ImageView iv = (ImageView) mTile.findViewById(R.id.gps_image);
-        if (iv != null) {
-           if (enabled && !mEnabled && working) {
-              iv.setBackgroundResource(R.drawable.qs_gps_acquiring_anim);
-              AnimationDrawable gpsAnimation = (AnimationDrawable) iv.getBackground();
-              gpsAnimation.start();
-           } else if (enabled && mEnabled) {
-              iv.setBackgroundResource(R.drawable.ic_qs_gps_on);
-           } else {
-              iv.setBackgroundResource(R.drawable.ic_qs_gps_off);
-           }
+    void onPostCreate() {
+        updateTile();
+        super.onPostCreate();
+    }
+
+    @Override
+    public void updateResources() {
+        updateTile();
+        updateQuickSettings();
+    }
+
+    private synchronized void updateTile() {
+        if (enabled && working) {
+            mDrawable = R.drawable.ic_qs_location;
+        } else if (enabled) {
+            mDrawable = R.drawable.ic_qs_gps_on;
+        } else {
+            mDrawable = R.drawable.ic_qs_gps_off;
         }
+        setGenericLabel();
+    }
+
+    @Override
+    public void onLocationGpsStateChanged(boolean inUse, String description) {
+        working = inUse;
+        mDescription = description;
+        updateResources();
     }
 
     private void setGenericLabel() {
-        mLabel = (enabled ? mContext.getString(R.string.quick_settings_gps) : mContext.getString(R.string.quick_settings_gps_off));
+        if (mDescription != null) {
+            mLabel = mDescription;
+        } else {
+            mLabel = (enabled ? mContext.getString(R.string.quick_settings_gps) : mContext.getString(R.string.quick_settings_gps_off));
+        }
     }
 }

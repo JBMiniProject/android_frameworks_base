@@ -35,7 +35,7 @@ class TelephonyIcons {
           R.drawable.stat_sys_signal_4_fully }
     };
 
-    static final int[][] TELEPHONY_SIGNAL_STRENGTH_QS = {
+    static final int[][] QS_TELEPHONY_SIGNAL_STRENGTH = {
         { R.drawable.ic_qs_signal_0,
           R.drawable.ic_qs_signal_1,
           R.drawable.ic_qs_signal_2,
