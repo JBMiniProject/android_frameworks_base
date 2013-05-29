@@ -52,7 +52,7 @@ public class SyncButton extends PowerButton {
 
     @Override
     protected void toggleState(Context context) {
-        // If ON turn OFF else turn ON 
+        // If ON turn OFF else turn ON
         if (getSyncState(context)) {
             ContentResolver.setMasterSyncAutomatically(false);
         } else {

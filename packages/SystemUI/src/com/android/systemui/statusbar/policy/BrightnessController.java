@@ -57,7 +57,7 @@ public class BrightnessController implements ToggleSlider.Listener {
         mControl = control;
 
         PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
-        mMinimumBacklight = pm.BRIGHTNESS_DIM + 8;
+        mMinimumBacklight = (pm.BRIGHTNESS_ON/10) + 5;
         mMaximumBacklight = pm.BRIGHTNESS_ON;
 
         mAutomaticAvailable = context.getResources().getBoolean(

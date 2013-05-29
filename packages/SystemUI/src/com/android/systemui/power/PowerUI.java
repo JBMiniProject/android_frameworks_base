@@ -126,8 +126,6 @@ public class PowerUI extends SystemUI {
 
                 final boolean plugged = mPlugType != 0;
                 final boolean oldPlugged = oldPlugType != 0;
-                final boolean charging = mBatteryStatus == BatteryManager.BATTERY_STATUS_CHARGING;
-                final boolean oldCharging = oldBatteryStatus == BatteryManager.BATTERY_STATUS_CHARGING;
 
                 if (mIgnoreFirstPowerEvent && plugged) {
                     mIgnoreFirstPowerEvent = false;
@@ -146,7 +144,6 @@ public class PowerUI extends SystemUI {
                     Slog.d(TAG, "invalidCharger " + oldInvalidCharger + " --> " + mInvalidCharger);
                     Slog.d(TAG, "bucket         " + oldBucket + " --> " + bucket);
                     Slog.d(TAG, "plugged        " + oldPlugged + " --> " + plugged);
-                    Slog.d(TAG, "charging       " + oldCharging + " --> " + charging);
                 }
 
                 if (oldInvalidCharger == 0 && mInvalidCharger != 0) {
@@ -160,17 +157,17 @@ public class PowerUI extends SystemUI {
                     return;
                 }
 
-                if (!charging
-                        && (bucket < oldBucket || oldCharging)
+                if (!plugged
+                        && (bucket < oldBucket || oldPlugged)
                         && mBatteryStatus != BatteryManager.BATTERY_STATUS_UNKNOWN
                         && bucket < 0) {
                     showLowBatteryWarning();
 
                     // only play SFX when the dialog comes up or the bucket changes
-                    if (bucket != oldBucket || oldCharging) {
+                    if (bucket != oldBucket || oldPlugged) {
                         playLowBatterySound();
                     }
-                } else if (charging || (bucket > oldBucket && bucket > 0)) {
+                } else if (plugged || (bucket > oldBucket && bucket > 0)) {
                     dismissLowBatteryWarning();
                 } else if (mBatteryLevelTextView != null) {
                     showLowBatteryWarning();
