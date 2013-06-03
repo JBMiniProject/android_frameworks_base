@@ -4333,6 +4333,23 @@ final class ActivityStack {
         return info;
     }
 
+    public Bitmap getTaskTopThumbnailLocked(TaskRecord tr) {
+        ActivityRecord resumed = mResumedActivity;
+        if (resumed != null && resumed.task == tr) {
+            // This task is the current resumed task, we just need to take
+            // a screenshot of it and return that.
+            return resumed.stack.screenshotActivities(resumed);
+        }
+        // Return the information about the task, to figure out the top
+        // thumbnail to return.
+        TaskAccessInfo info = getTaskAccessInfoLocked(tr.taskId, true);
+        if (info.numSubThumbbails <= 0) {
+            return info.mainThumbnail != null ? info.mainThumbnail : tr.lastThumbnail;
+        } else {
+            return tr.lastThumbnail;
+        }
+    }
+
     public ActivityRecord removeTaskActivitiesLocked(int taskId, int subTaskIndex,
             boolean taskRequired) {
         TaskAccessInfo info = getTaskAccessInfoLocked(taskId, false);

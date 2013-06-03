@@ -97,13 +97,13 @@ public class StatusBarManager {
     }
     
     /**
-     * Expand the status bar.
+     * Expand the notifications panel.
      */
-    public void expand() {
+    public void expandNotificationsPanel() {
         try {
             final IStatusBarService svc = getService();
             if (svc != null) {
-                svc.expand();
+                svc.expandNotificationsPanel();
             }
         } catch (RemoteException ex) {
             // system process is dead anyway.
@@ -112,13 +112,28 @@ public class StatusBarManager {
     }
     
     /**
-     * Collapse the status bar.
+     * Collapse the notifications and settings panels.
      */
-    public void collapse() {
+    public void collapsePanels() {
         try {
             final IStatusBarService svc = getService();
             if (svc != null) {
-                svc.collapse();
+                svc.collapsePanels();
+            }
+        } catch (RemoteException ex) {
+            // system process is dead anyway.
+            throw new RuntimeException(ex);
+        }
+    }
+
+    /**
+     * Expand the settings panel.
+     */
+    public void expandSettingsPanel() {
+        try {
+            final IStatusBarService svc = getService();
+            if (svc != null) {
+                svc.expandSettingsPanel();
             }
         } catch (RemoteException ex) {
             // system process is dead anyway.

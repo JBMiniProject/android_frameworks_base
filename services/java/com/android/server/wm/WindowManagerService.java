@@ -3336,9 +3336,9 @@ public class WindowManagerService extends IWindowManager.Stub
                         "applyAnimation: wtoken=" + wtoken
                         + " anim=" + a + " nextAppTransition=ANIM_SCALE_UP"
                         + " transit=" + transit + " Callers " + Debug.getCallers(3));
-            } else if (mNextAppTransitionType == ActivityOptions.ANIM_THUMBNAIL ||
-                    mNextAppTransitionType == ActivityOptions.ANIM_THUMBNAIL_DELAYED) {
-                boolean delayed = (mNextAppTransitionType == ActivityOptions.ANIM_THUMBNAIL_DELAYED);
+            } else if (mNextAppTransitionType == ActivityOptions.ANIM_THUMBNAIL_SCALE_UP ||
+                    mNextAppTransitionType == ActivityOptions.ANIM_THUMBNAIL_SCALE_DOWN) {
+                boolean delayed = (mNextAppTransitionType == ActivityOptions.ANIM_THUMBNAIL_SCALE_DOWN);
                 a = createThumbnailAnimationLocked(transit, enter, false, delayed);
                 initialized = true;
 
@@ -4012,7 +4012,7 @@ public class WindowManagerService extends IWindowManager.Stub
         synchronized(mWindowMap) {
             if (mNextAppTransition != WindowManagerPolicy.TRANSIT_UNSET) {
                 mNextAppTransitionType = delayed
-                        ? ActivityOptions.ANIM_THUMBNAIL_DELAYED : ActivityOptions.ANIM_THUMBNAIL;
+                        ? ActivityOptions.ANIM_THUMBNAIL_SCALE_DOWN : ActivityOptions.ANIM_THUMBNAIL_SCALE_UP;
                 mNextAppTransitionPackage = null;
                 mNextAppTransitionThumbnail = srcThumb;
                 mNextAppTransitionDelayed = delayed;
@@ -9965,8 +9965,8 @@ public class WindowManagerService extends IWindowManager.Stub
                             pw.print(" mNextAppTransitionStartHeight=");
                             pw.println(mNextAppTransitionStartHeight);
                     break;
-                case ActivityOptions.ANIM_THUMBNAIL:
-                case ActivityOptions.ANIM_THUMBNAIL_DELAYED:
+                case ActivityOptions.ANIM_THUMBNAIL_SCALE_UP:
+                case ActivityOptions.ANIM_THUMBNAIL_SCALE_DOWN:
                     pw.print("  mNextAppTransitionThumbnail=");
                             pw.print(mNextAppTransitionThumbnail);
                             pw.print(" mNextAppTransitionStartX=");

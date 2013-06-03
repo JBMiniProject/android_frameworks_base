@@ -19,8 +19,6 @@ package com.android.internal.statusbar;
 import android.app.Notification;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.widget.RemoteViews;
-
 
 /*
 boolean clearable = !n.ongoingEvent && ((notification.flags & Notification.FLAG_NO_CLEAR) == 0);
@@ -38,16 +36,15 @@ if (truncatedTicker != null && truncatedTicker.length() > maxTickerLen) {
  * Class encapsulating a Notification. Sent by the NotificationManagerService to the IStatusBar (in System UI).
  */
 public class StatusBarNotification implements Parcelable {
-    public String pkg;
-    public int id;
-    public String tag;
-    public int uid;
-    public int initialPid;
-    public Notification notification;
-    public int score;
-    
-    public StatusBarNotification() {
-    }
+    public final String pkg;
+    public final int id;
+    public final String tag;
+    public final int uid;
+    public final int initialPid;
+    // TODO: make this field private and move callers to an accessor that
+    // ensures sourceUser is applied.
+    public final Notification notification;
+    public final int score;
 
     public StatusBarNotification(String pkg, int id, String tag,
             int uid, int initialPid, int score, Notification notification) {
@@ -64,10 +61,6 @@ public class StatusBarNotification implements Parcelable {
     }
 
     public StatusBarNotification(Parcel in) {
-        readFromParcel(in);
-    }
-
-    public void readFromParcel(Parcel in) {
         this.pkg = in.readString();
         this.id = in.readInt();
         if (in.readInt() != 0) {
@@ -114,11 +107,13 @@ public class StatusBarNotification implements Parcelable {
         }
     };
 
+    @Override
     public StatusBarNotification clone() {
         return new StatusBarNotification(this.pkg, this.id, this.tag,
                 this.uid, this.initialPid, this.score, this.notification.clone());
     }
 
+    @Override
     public String toString() {
         return "StatusBarNotification(pkg=" + pkg + " id=" + id + " tag=" + tag
                 + " score=" + score + " notn=" + notification + ")";
@@ -133,5 +128,3 @@ public class StatusBarNotification implements Parcelable {
                 && ((notification.flags & Notification.FLAG_NO_CLEAR) == 0);
     }
 }
-
-

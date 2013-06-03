@@ -614,9 +614,9 @@ final class ActivityRecord {
                                 pendingOptions.getStartY()+pendingOptions.getStartHeight()));
                     }
                     break;
-                case ActivityOptions.ANIM_THUMBNAIL:
-                case ActivityOptions.ANIM_THUMBNAIL_DELAYED:
-                    boolean delayed = (animationType == ActivityOptions.ANIM_THUMBNAIL_DELAYED);
+                case ActivityOptions.ANIM_THUMBNAIL_SCALE_UP:
+                case ActivityOptions.ANIM_THUMBNAIL_SCALE_DOWN:
+                    boolean delayed = (animationType == ActivityOptions.ANIM_THUMBNAIL_SCALE_DOWN);
                     service.mWindowManager.overridePendingAppTransitionThumb(
                             pendingOptions.getThumbnail(),
                             pendingOptions.getStartX(), pendingOptions.getStartY(),

@@ -28,10 +28,6 @@ import android.util.FloatMath;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.MeasureSpec;
-import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
 import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
@@ -57,7 +53,6 @@ public class RecentsVerticalScrollView extends ScrollView
     private RecentsScrollViewPerformanceHelper mPerformanceHelper;
     private HashSet<View> mRecycledViews;
     private int mNumItemsInOneScreenful;
-    private Handler mHandler;
 
     public RecentsVerticalScrollView(Context context, AttributeSet attrs) {
         super(context, attrs, 0);
@@ -67,7 +62,6 @@ public class RecentsVerticalScrollView extends ScrollView
 
         mPerformanceHelper = RecentsScrollViewPerformanceHelper.create(context, attrs, this, true);
         mRecycledViews = new HashSet<View>();
-        mHandler = new Handler();
     }
 
     public void setMinSwipeAlpha(float minAlpha) {
@@ -82,6 +76,17 @@ public class RecentsVerticalScrollView extends ScrollView
         if (mRecycledViews.size() < mNumItemsInOneScreenful) {
             mRecycledViews.add(v);
         }
+    }
+
+    public View findViewForTask(int persistentTaskId) {
+        for (int i = 0; i < mLinearLayout.getChildCount(); i++) {
+            View v = mLinearLayout.getChildAt(i);
+            RecentsPanelView.ViewHolder holder = (RecentsPanelView.ViewHolder) v.getTag();
+            if (holder.taskDescription.persistentTaskId == persistentTaskId) {
+                return v;
+            }
+        }
+        return null;
     }
 
     private void update() {
@@ -153,25 +158,26 @@ public class RecentsVerticalScrollView extends ScrollView
             appTitle.setContentDescription(" ");
             appTitle.setOnTouchListener(noOpListener);
             final View calloutLine = view.findViewById(R.id.recents_callout_line);
-            calloutLine.setOnTouchListener(noOpListener);
+            if (calloutLine != null) {
+                calloutLine.setOnTouchListener(noOpListener);
+            }
 
             mLinearLayout.addView(view);
         }
         setLayoutTransition(transitioner);
 
-        // Scroll to end after layout.
-        final ViewTreeObserver observer = getViewTreeObserver();
-
+        // Scroll to end after initial layout.
         final OnGlobalLayoutListener updateScroll = new OnGlobalLayoutListener() {
                 public void onGlobalLayout() {
                     mLastScrollPosition = scrollPositionOfMostRecent();
                     scrollTo(0, mLastScrollPosition);
+                    final ViewTreeObserver observer = getViewTreeObserver();
                     if (observer.isAlive()) {
                         observer.removeOnGlobalLayoutListener(this);
                     }
                 }
             };
-        observer.addOnGlobalLayoutListener(updateScroll);
+        getViewTreeObserver().addOnGlobalLayoutListener(updateScroll);
     }
 
     @Override
@@ -182,30 +188,16 @@ public class RecentsVerticalScrollView extends ScrollView
     @Override
     public void removeAllViewsInLayout() {
         smoothScrollTo(0, 0);
-        Thread clearAll = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int count = mLinearLayout.getChildCount();
-                View[] refView = new View[count];
-                for (int i = 0; i < count; i++) {
-                    refView[i] = mLinearLayout.getChildAt(i);
+        int count = mLinearLayout.getChildCount();
+        for (int i = 0; i < count; i++) {
+            final View child = mLinearLayout.getChildAt(i);
+            postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    dismissChild(child);
                 }
-                for (int i = 0; i < count; i++) {
-                    final View child = refView[i];
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            dismissChild(child);
-                        }
-                    });
-                    try {
-                        Thread.sleep(150);
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
-        });
-        clearAll.start();
+            }, i * 150);
+        }
     }
 
     public boolean onInterceptTouchEvent(MotionEvent ev) {
@@ -367,19 +359,6 @@ public class RecentsVerticalScrollView extends ScrollView
                 }
             }
         });
-    }
-
-    @Override
-    protected void onVisibilityChanged(View changedView, int visibility) {
-        super.onVisibilityChanged(changedView, visibility);
-        // scroll to bottom after reloading
-        if (visibility == View.VISIBLE && changedView == this) {
-            post(new Runnable() {
-                public void run() {
-                    update();
-                }
-            });
-        }
     }
 
     public void setAdapter(TaskDescriptionAdapter adapter) {
