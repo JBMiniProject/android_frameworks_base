@@ -8,7 +8,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.net.Uri;
-import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -40,8 +39,7 @@ public class UserTile extends QuickSettingsTile {
             }
         };
         qsc.registerAction(Intent.ACTION_CONFIGURATION_CHANGED, this);
-        qsc.registerObservedContent(Settings.System.getUriFor(Settings.System.USER_MY_NUMBERS)
-                , this);
+        qsc.registerAction(Intent.ACTION_INSERT_OR_EDIT, this);
     }
 
     @Override
@@ -69,27 +67,24 @@ public class UserTile extends QuickSettingsTile {
     }
 
     private void queryForUserInformation() {
-        ContentResolver resolver = mContext.getContentResolver();
-        String numbers = Settings.System.getString(resolver, Settings.System.USER_MY_NUMBERS);
-        Drawable avatar = null;
-        if (numbers != null) {
-            String name = UserHelper.getName(mContext, numbers);
-            Bitmap rawAvatar = UserHelper.getContactPicture(mContext, numbers);
-            if (rawAvatar != null) {
-                avatar = new BitmapDrawable(mContext.getResources(), rawAvatar);
-            } else {
-                avatar = mContext.getResources().getDrawable(R.drawable.ic_qs_default_user);
-            }
-            if (name != null) {
-                setUserTileInfo(name, avatar);
-            } else {
-                String names = mContext.getString(R.string.quick_settings_user_label);
-                setUserTileInfo(names, avatar);
-            }
+        String number    = "5267";
+        Drawable avatar  = null;
+        String name      = UserHelper.getName(mContext, number);
+        Bitmap rawAvatar = UserHelper.getContactPicture(mContext, number);
+
+        Drawable no_avatar = mContext.getResources().getDrawable(R.drawable.ic_qs_default_user);
+        String no_name     = mContext.getString(R.string.quick_settings_user_label);
+
+        if (rawAvatar != null) {
+            avatar = new BitmapDrawable(mContext.getResources(), rawAvatar);
         } else {
-            String named = mContext.getString(R.string.quick_settings_user_label);
-            avatar = mContext.getResources().getDrawable(R.drawable.ic_qs_default_user);
-            setUserTileInfo(named, avatar);
+            avatar = no_avatar;
+        }
+
+        if (name != null && !(name.equals("5267"))) {
+            setUserTileInfo(name, avatar);
+        } else {
+            setUserTileInfo(no_name, avatar);
         }
     }
 
