@@ -28,9 +28,8 @@ oneway interface IStatusBar
     void updateNotification(IBinder key, in StatusBarNotification notification);
     void removeNotification(IBinder key);
     void disable(int state);
-    void animateExpandNotificationsPanel();
-    void animateExpandSettingsPanel();
-    void animateCollapsePanels();
+    void animateExpand();
+    void animateCollapse();
     void setSystemUiVisibility(int vis, int mask);
     void topAppWindowChanged(boolean menuVisible);
     void setImeWindowStatus(in IBinder token, int vis, int backDisposition);

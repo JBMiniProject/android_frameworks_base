@@ -216,7 +216,7 @@ public class SearchPanelView extends FrameLayout implements
     public void hide(boolean animate) {
         if (mBar != null) {
             // This will indirectly cause show(false, ...) to get called
-            mBar.animateCollapsePanels(CommandQueue.FLAG_EXCLUDE_NONE);
+            mBar.animateCollapse(CommandQueue.FLAG_EXCLUDE_NONE);
         } else {
             setVisibility(View.INVISIBLE);
         }
@@ -260,6 +260,11 @@ public class SearchPanelView extends FrameLayout implements
     public void setStatusBarView(final View statusBarView) {
         if (mStatusBarTouchProxy != null) {
             mStatusBarTouchProxy.setStatusBar(statusBarView);
+//            mGlowPadView.setOnTouchListener(new OnTouchListener() {
+//                public boolean onTouch(View v, MotionEvent event) {
+//                    return statusBarView.onTouchEvent(event);
+//                }
+//            });
         }
     }
 

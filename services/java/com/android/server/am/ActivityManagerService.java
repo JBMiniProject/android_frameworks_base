@@ -5674,18 +5674,6 @@ public final class ActivityManagerService extends ActivityManagerNative
         return null;
     }
 
-    public Bitmap getTaskTopThumbnail(int id) {
-        synchronized (this) {
-            enforceCallingPermission(android.Manifest.permission.READ_FRAME_BUFFER,
-                    "getTaskTopThumbnail()");
-            TaskRecord tr = taskForIdLocked(id);
-            if (tr != null) {
-                return mMainStack.getTaskTopThumbnailLocked(tr);
-            }
-        }
-        return null;
-    }
-
     public boolean removeSubTask(int taskId, int subTaskIndex) {
         synchronized (this) {
             enforceCallingPermission(android.Manifest.permission.REMOVE_TASKS,
