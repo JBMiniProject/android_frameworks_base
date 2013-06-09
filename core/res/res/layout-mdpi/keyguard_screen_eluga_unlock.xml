@@ -30,21 +30,21 @@
     android:id="@+id/root"
     android:gravity="center_horizontal">
 
-        <TextView
-            android:id="@+id/carrier"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginTop="12dip"
-            android:layout_marginRight="12dip"
-            android:gravity="right"
-            android:singleLine="true"
-            android:ellipsize="marquee"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textSize="@dimen/keyguard_lockscreen_status_line_font_size"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textStyle="bold"
-            />
+    <TextView
+        android:id="@+id/carrier"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="12dip"
+        android:layout_marginRight="12dip"
+        android:gravity="right"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="@dimen/keyguard_lockscreen_status_line_font_size"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textStyle="bold"
+        />
 
     <com.android.internal.widget.DigitalClock android:id="@+id/time"
         android:layout_marginTop="34dip"
@@ -249,67 +249,67 @@
         android:layout_height="250dip"
         android:layout_gravity="center_horizontal">
 
-    <!-- CyanogenMod Calendar Panel -->
-    <LinearLayout
-        android:id="@+id/calendar_panel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="28dip"
-        android:gravity="center_vertical"
-        android:paddingLeft="12dip"
-        android:paddingRight="12dip" >
-
-        <ImageView
-            android:layout_width="36dp"
+        <!-- CyanogenMod Calendar Panel -->
+        <LinearLayout
+            android:id="@+id/calendar_panel"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:gravity="center"
-            android:src="@drawable/ic_lock_idle_calendar" />
+            android:minHeight="28dip"
+            android:gravity="center_vertical"
+            android:paddingLeft="12dip"
+            android:paddingRight="12dip" >
 
-        <View
-            android:layout_width="1dip"
-            android:layout_height="match_parent"
-            android:paddingTop="6dip"
-            android:paddingBottom="6dip"
-            android:background="@android:drawable/divider_horizontal_dark" />
-
-        <RelativeLayout
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingTop="6dip"
-            android:paddingBottom="6dip"
-            android:paddingLeft="4dip" >
-
-            <TextView
-                android:id="@+id/calendar_event_title"
-                android:layout_width="wrap_content"
+            <ImageView
+                android:layout_width="36dp"
                 android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:textSize="14sp"
-                android:textColor="?android:attr/textColorPrimary"
-                android:ellipsize="marquee"
-                android:fadingEdge="horizontal" />
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:src="@drawable/ic_lock_idle_calendar" />
 
-            <TextView
-                android:id="@+id/calendar_event_details"
-                android:layout_width="wrap_content"
+            <View
+                android:layout_width="1dip"
+                android:layout_height="match_parent"
+                android:paddingTop="6dip"
+                android:paddingBottom="6dip"
+                android:background="@android:drawable/divider_horizontal_dark" />
+
+            <RelativeLayout
+                android:layout_width="0dip"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/calendar_event_title"
-                android:layout_alignLeft="@id/calendar_event_title"
-                android:textSize="12sp"
-                android:singleLine="true"
-                android:ellipsize="marquee"
-                android:marqueeRepeatLimit="marquee_forever"
-                android:scrollHorizontally="true"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:fadingEdge="horizontal"
-                android:textColor="?android:attr/textColorSecondary" />
+                android:layout_weight="1"
+                android:paddingTop="6dip"
+                android:paddingBottom="6dip"
+                android:paddingLeft="4dip" >
 
-        </RelativeLayout>
+                <TextView
+                    android:id="@+id/calendar_event_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:textSize="14sp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:ellipsize="marquee"
+                    android:fadingEdge="horizontal" />
 
-    </LinearLayout>
+                <TextView
+                    android:id="@+id/calendar_event_details"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/calendar_event_title"
+                    android:layout_alignLeft="@id/calendar_event_title"
+                    android:textSize="12sp"
+                    android:singleLine="true"
+                    android:ellipsize="marquee"
+                    android:marqueeRepeatLimit="marquee_forever"
+                    android:scrollHorizontally="true"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:fadingEdge="horizontal"
+                    android:textColor="?android:attr/textColorSecondary" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
 
         <com.android.internal.widget.jbminiproject.ElugaView
             android:id="@+id/unlock_widget"
@@ -354,4 +354,3 @@
         />
 
 </GridLayout>
-

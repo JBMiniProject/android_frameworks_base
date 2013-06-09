@@ -30,21 +30,21 @@
     android:id="@+id/root"
     android:gravity="center_horizontal">
 
-        <TextView
-            android:id="@+id/carrier"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginTop="12dip"
-            android:layout_marginRight="12dip"
-            android:gravity="right"
-            android:singleLine="true"
-            android:ellipsize="marquee"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textSize="@dimen/keyguard_lockscreen_status_line_font_size"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textStyle="bold"
-            />
+    <TextView
+        android:id="@+id/carrier"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="12dip"
+        android:layout_marginRight="12dip"
+        android:gravity="right"
+        android:singleLine="true"
+        android:ellipsize="marquee"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="@dimen/keyguard_lockscreen_status_line_font_size"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textStyle="bold"
+        />
 
     <com.android.internal.widget.DigitalClock android:id="@+id/time"
         android:layout_marginTop="34dip"
@@ -311,11 +311,11 @@
 
     </LinearLayout>
 
-        <com.android.internal.widget.jbminiproject.ElugaView
-            android:id="@+id/unlock_widget"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            />
+    <com.android.internal.widget.jbminiproject.ElugaView
+        android:id="@+id/unlock_widget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
 
     </RelativeLayout>
 
