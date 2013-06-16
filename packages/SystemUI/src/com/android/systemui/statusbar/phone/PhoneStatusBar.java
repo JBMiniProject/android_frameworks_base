@@ -546,6 +546,9 @@ public class PhoneStatusBar extends BaseStatusBar {
         mRotationButton = (RotationToggle) mStatusBarWindow.findViewById(R.id.rotation_lock_button);
         mButtonsBar = mStatusBarWindow.findViewById(R.id.buttons_bar);
 
+        //Ugly hack for remove the settings button from status bar
+        mSettingsButton.setVisibility(View.GONE);
+
         // Compute the DateView width
         mDateView.post(new Runnable() {
             @Override
