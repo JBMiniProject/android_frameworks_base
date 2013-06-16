@@ -69,13 +69,6 @@
         android:layout_weight="1"
         />
 
-    <ImageButton android:id="@+id/quick_button"
-        android:background="@*android:color/transparent"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:scaleType="center"
-        />
-
     <ImageView android:id="@+id/clear_all_button"
         android:layout_width="48dp"
         android:layout_height="48dp"
@@ -83,4 +76,12 @@
         android:src="@drawable/ic_notify_clear"
         android:contentDescription="@string/accessibility_clear_all"
         />
+
+    <ImageButton android:id="@+id/quick_button"
+        android:background="@*android:color/transparent"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:scaleType="center"
+        />
+
 </LinearLayout>
