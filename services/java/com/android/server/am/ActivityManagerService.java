@@ -11210,7 +11210,8 @@ public final class ActivityManagerService extends ActivityManagerNative
                     int N = mPendingServices.size();
                     for (int i=0; i<N; i++) {
                         ServiceRecord pr = mPendingServices.get(i);
-                        if (pr.name.equals(name)) {
+                        if (pr.serviceInfo.applicationInfo.uid == sInfo.applicationInfo.uid 
+                                && pr.name.equals(name)) {
                             mPendingServices.remove(i);
                             i--;
                             N--;
